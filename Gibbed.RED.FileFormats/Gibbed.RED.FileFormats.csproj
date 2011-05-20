@@ -41,7 +41,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompiledScriptsFile.cs" />
-    <Compile Include="CompiledScript\ScriptType.cs" />
+    <Compile Include="Script\ArgumentDefinition.cs" />
+    <Compile Include="Script\FunctionDefinition.cs" />
+    <Compile Include="Script\FunctionFlags.cs" />
+    <Compile Include="Script\ICodeReader.cs" />
+    <Compile Include="Script\ICodeWriter.cs" />
+    <Compile Include="Script\Instructions\U04.cs" />
+    <Compile Include="Script\IInstruction.cs" />
+    <Compile Include="Script\Opcode.cs" />
+    <Compile Include="Script\OpcodeHandlerAttribute.cs" />
+    <Compile Include="Script\OpcodeHandlerCache.cs" />
+    <Compile Include="Script\RawFunctionDefinition.cs" />
+    <Compile Include="Script\RawString.cs" />
+    <Compile Include="Script\RawTypeDefinition.cs" />
+    <Compile Include="Script\RawTypeDefinitionFlags.cs" />
+    <Compile Include="Script\NativeType.cs" />
     <Compile Include="PackageFile.cs" />
     <Compile Include="Package\Entry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

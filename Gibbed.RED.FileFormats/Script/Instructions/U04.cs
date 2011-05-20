@@ -20,20 +20,21 @@
  *    distribution.
  */
 
-using System.IO;
-using Gibbed.RED.FileFormats;
+using System;
 
-namespace Gibbed.RED.Test
+namespace Gibbed.RED.FileFormats.Script.Instructions
 {
-    internal class Program
+    [OpcodeHandler(Opcode.U04)]
+    public class U04 : IInstruction
     {
-        public static void Main(string[] args)
+        public void Deserialize(ICodeReader input)
         {
-            using (var input = File.OpenRead(@"T:\Games\Steam\steamapps\common\the witcher 2\CookedPC\compiledscripts.w2scripts"))
-            {
-                var test = new CompiledScriptsFile();
-                test.Deserialize(input);
-            }
+            throw new NotImplementedException();
+        }
+
+        public void Serialize(ICodeWriter output)
+        {
+            throw new NotImplementedException();
         }
     }
 }

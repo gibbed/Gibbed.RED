@@ -20,20 +20,19 @@
  *    distribution.
  */
 
-using System.IO;
-using Gibbed.RED.FileFormats;
-
-namespace Gibbed.RED.Test
+namespace Gibbed.RED.FileFormats.Script
 {
-    internal class Program
+    internal class RawTypeDefinition
     {
-        public static void Main(string[] args)
+        public string Name;
+        public NativeType Type;
+        public int UnknownCount;
+        public int PropertyCount;
+        public RawTypeDefinitionFlags Flags;
+
+        public override string ToString()
         {
-            using (var input = File.OpenRead(@"T:\Games\Steam\steamapps\common\the witcher 2\CookedPC\compiledscripts.w2scripts"))
-            {
-                var test = new CompiledScriptsFile();
-                test.Deserialize(input);
-            }
+            return this.Name;
         }
     }
 }

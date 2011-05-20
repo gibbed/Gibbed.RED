@@ -65,7 +65,30 @@ namespace Gibbed.RED.FileFormats
             }
         }
 
-        public void Deserialize(Stream input, string cdkey)
+        public void DeserializeWithCDKey(Stream input, string cdkey)
+        {
+            if (cdkey == null)
+            {
+                this.Deserialize(input, null);
+            }
+            else
+            {
+                var decryptKey = 0x00000000FFFFFFFFUL;
+                if (string.IsNullOrEmpty(cdkey) == false)
+                {
+                    for (int i = 0; i < cdkey.Length; i++)
+                    {
+                        // probably a bug they never fixed
+                        // that they use a uint instead of ulong
+                        decryptKey ^= ((uint)cdkey[i] << 8 * (i % 8));
+                    }
+                }
+
+                this.Deserialize(input, decryptKey);
+            }
+        }
+
+        public void Deserialize(Stream input, ulong? decryptKey)
         {
             if (input.ReadValueU32() != 0x50495A44) // DZIP
             {
@@ -76,17 +99,6 @@ namespace Gibbed.RED.FileFormats
             if (this.Version < 2)
             {
                 throw new FormatException("unsupported version");
-            }
-
-            var decryptKey = 0x00000000FFFFFFFFUL;
-            if (string.IsNullOrEmpty(cdkey) == false)
-            {
-                for (int i = 0; i < cdkey.Length; i++)
-                {
-                    // probably a bug they never fixed
-                    // that they use a uint instead of ulong
-                    decryptKey ^= ((uint)cdkey[i] << 8 * (i % 8));
-                }
             }
 
             var entryCount = input.ReadValueU32();
@@ -101,7 +113,7 @@ namespace Gibbed.RED.FileFormats
                 var entry = new Package.Entry();
                 var length = input.ReadValueU16();
 
-                if (string.IsNullOrEmpty(cdkey) == true)
+                if (decryptKey.HasValue == false)
                 {
                     entry.Name = input.ReadString(
                         length, true, Encoding.ASCII);

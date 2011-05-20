@@ -41,6 +41,7 @@ namespace Gibbed.RED.Unpack
             bool showHelp = false;
             bool overwriteFiles = false;
             string cdkey = null;
+            string extensionFilter = null;
 
             OptionSet options = new OptionSet()
             {
@@ -51,8 +52,13 @@ namespace Gibbed.RED.Unpack
                 },
                 {
                     "cdkey=",
-                    "cdkey for use with DLC archives (#####-#####-#####-#####)",
+                    "cdkey for use with DLC archives\n(in format #####-#####-#####-#####)",
                     v => cdkey = v
+                },
+                {
+                    "e|extension=",
+                    "only extract files of this extension",
+                    v => extensionFilter = v
                 },
                 {
                     "h|help",
@@ -88,21 +94,19 @@ namespace Gibbed.RED.Unpack
             string outputPath = extras.Count > 1 ? extras[1] : Path.ChangeExtension(inputPath, null);
 
             var uncompressed = new byte[0x10000];
+            bool filtering = string.IsNullOrEmpty(extensionFilter) == false;
 
-            using (var input = File.Open(inputPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (var input = File.Open(inputPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 var pkg = new PackageFile();
-                pkg.Deserialize(input, cdkey);
+                pkg.DeserializeWithCDKey(input, cdkey);
 
-                long current = 1;
+                long current = 0;
                 long total = pkg.Entries.Count;
 
                 foreach (var entry in pkg.Entries)
                 {
-                    Console.WriteLine("[{0}/{1}] {2}",
-                        current, total, entry.Name);
                     current++;
-
                     var entryPath = Path.Combine(outputPath, entry.Name);
 
                     if (overwriteFiles == false &&
@@ -110,6 +114,15 @@ namespace Gibbed.RED.Unpack
                     {
                         continue;
                     }
+
+                    if (filtering == true &&
+                        Path.GetExtension(entryPath) != extensionFilter)
+                    {
+                        continue;
+                    }
+
+                    Console.WriteLine("[{0}/{1}] {2}",
+                        current, total, entry.Name);
 
                     Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
 
@@ -134,7 +147,7 @@ namespace Gibbed.RED.Unpack
                             input.Seek(offsets[i], SeekOrigin.Begin);
                             input.Read(compressed, 0, compressed.Length);
 
-                            int read = Decode(compressed, uncompressed);
+                            int read = LZF.Decompress(compressed, uncompressed);
 
                             if (i + 1 < blocks && read != uncompressed.Length)
                             {
@@ -149,67 +162,6 @@ namespace Gibbed.RED.Unpack
             }
         }
 
-        // TODO: this could serve to be ~optimized~
-        // TODO: make sure this is 100% correct
-        private static int Decode(byte[] input, byte[] output)
-        {
-            int i = 0;
-            int o = 0;
-
-            if ((input[0] & 0xC0) != 0)
-            {
-                throw new InvalidOperationException();
-            }
-
-            while (i < input.Length)
-            {
-                var op = input[i++];
-                var control = (op >> 5) & 0x07;
-                
-                if (control == 0)
-                {
-                    // uncompressed blob
-                    int length = 1 + (op & 0x1F);
-                    Array.Copy(input, i, output, o, length);
-                    i += length;
-                    o += length;
-                }
-                else
-                {
-                    int length;
-
-                    if (control == 7)
-                    {
-                        length = 6 + input[i++];
-                    }
-                    else
-                    {
-                        length = control - 1;
-                    }
-                    length += 3;
-
-                    int offset = (op & 0x1F) << 8;
-                    offset |= input[i++];
-
-                    offset = o - 1 - offset;
-
-                    if (offset + length > o)
-                    {
-                        while (length > 0)
-                        {
-                            output[o++] = output[offset++];
-                            length--;
-                        }
-                    }
-                    else
-                    {
-                        Array.Copy(output, offset, output, o, length);
-                        o += length;
-                    }
-                }
-            }
-
-            return o;
-        }
+        
     }
 }

@@ -20,16 +20,16 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.CompiledScript
+namespace Gibbed.RED.FileFormats.Script
 {
-    public enum ScriptType : int
+    public enum NativeType : int
     {
         Simple = 0,
         Enum = 1,
         Class = 2,
-        Unknown3 = 3,
+        Array = 3,
         Unknown4 = 4,
-        Unknown5 = 5,
+        Object = 5,
         Unknown6 = 6,
         State = 7,
     }
