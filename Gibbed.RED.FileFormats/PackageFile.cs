@@ -129,9 +129,11 @@ namespace Gibbed.RED.FileFormats
                         decryptKey *= 0x00000100000001B3UL;
                     }
 
-                    var nameStream = new MemoryStream(nameBytes);
-                    entry.Name = nameStream.ReadString(
-                        length, true, Encoding.ASCII);
+                    using (var nameStream = new MemoryStream(nameBytes))
+                    {
+                        entry.Name = nameStream.ReadString(
+                            length, true, Encoding.ASCII);
+                    }
                 }
                 
                 //entry.TimeStamp = input.ReadValueS64();

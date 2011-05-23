@@ -43,7 +43,7 @@ namespace Gibbed.RED.FileFormats
             for (int i = 0; i < strings.Length; i++)
             {
                 var stringEntry = new Script.RawString();
-                stringEntry.Value = ReadEncodedString(input);
+                stringEntry.Value = input.ReadStringEncodedUnicode();
                 stringEntry.IsName = input.ReadValueB8();
                 strings[i] = stringEntry;
             }
@@ -51,9 +51,9 @@ namespace Gibbed.RED.FileFormats
             input.Seek(0, SeekOrigin.Begin);
             
             // now the script data
-            var unk1 = ReadEncodedString(input);
+            var unk1 = input.ReadStringEncodedUnicode();
             var timeStamp = DateTime.FromFileTimeUtc(input.ReadValueS64());
-            var unk3 = ReadEncodedString(input);
+            var unk3 = input.ReadStringEncodedUnicode();
 
             var typeDefCount = input.ReadValueU32();
             var funcDefCount = input.ReadValueU32();
@@ -62,11 +62,11 @@ namespace Gibbed.RED.FileFormats
             for (uint i = 0; i < typeDefCount; i++)
             {
                 var rawTypeDef = new Script.RawTypeDefinition();
-                rawTypeDef.Name = strings[ReadEncodedInt32(input)].Value;
-                rawTypeDef.Type = (Script.NativeType)ReadEncodedInt32(input);
-                rawTypeDef.UnknownCount = ReadEncodedInt32(input);
-                rawTypeDef.PropertyCount = ReadEncodedInt32(input);
-                rawTypeDef.Flags = (Script.RawTypeDefinitionFlags)ReadEncodedInt32(input);
+                rawTypeDef.Name = strings[input.ReadValueEncodedS32()].Value;
+                rawTypeDef.Type = (Script.NativeType)input.ReadValueEncodedS32();
+                rawTypeDef.UnknownCount = input.ReadValueEncodedS32();
+                rawTypeDef.PropertyCount = input.ReadValueEncodedS32();
+                rawTypeDef.Flags = (Script.RawTypeDefinitionFlags)input.ReadValueEncodedS32();
                 rawTypeDefs[i] = rawTypeDef;
             }
 
@@ -74,9 +74,9 @@ namespace Gibbed.RED.FileFormats
             for (uint i = 0; i < funcDefCount; i++)
             {
                 var rawFuncDef = new Script.RawFunctionDefinition();
-                rawFuncDef.Name = strings[ReadEncodedInt32(input)].Value;
-                rawFuncDef.DefinedOnId = ReadEncodedInt32(input);
-                rawFuncDef.Flags = ReadEncodedInt32(input);
+                rawFuncDef.Name = strings[input.ReadValueEncodedS32()].Value;
+                rawFuncDef.DefinedOnId = input.ReadValueEncodedS32();
+                rawFuncDef.Flags = input.ReadValueEncodedS32();
                 rawFuncDefs[i] = rawFuncDef;
             }
 
@@ -91,25 +91,25 @@ namespace Gibbed.RED.FileFormats
                     continue;
                 }
 
-                var type = (Script.NativeType)ReadEncodedInt32(input);
+                var type = (Script.NativeType)input.ReadValueEncodedS32();
                 if (rawTypeDef.Type != type)
                 {
                     throw new FormatException();
                 }
 
-                var id = ReadEncodedInt32(input);
+                var id = input.ReadValueEncodedS32();
                 if (id != i)
                 {
                     throw new FormatException();
                 }
 
-                var unk2_2 = ReadEncodedInt32(input);
+                var unk2_2 = input.ReadValueEncodedS32();
 
-                var constantCount = ReadEncodedInt32(input);
+                var constantCount = input.ReadValueEncodedS32();
                 for (int j = 0; j < constantCount; j++)
                 {
-                    var constantName = strings[ReadEncodedInt32(input)].Value;
-                    var constantValue = ReadEncodedInt32(input);
+                    var constantName = strings[input.ReadValueEncodedS32()].Value;
+                    var constantValue = input.ReadValueEncodedS32();
                 }
             }
 
@@ -124,42 +124,42 @@ namespace Gibbed.RED.FileFormats
                     continue;
                 }
 
-                var type = (Script.NativeType)ReadEncodedInt32(input);
+                var type = (Script.NativeType)input.ReadValueEncodedS32();
                 if (rawTypeDef.Type != type)
                 {
                     throw new FormatException();
                 }
 
-                var id = ReadEncodedInt32(input);
+                var id = input.ReadValueEncodedS32();
                 if (id != i)
                 {
                     throw new FormatException();
                 }
 
-                var isExtending = ReadEncodedInt32(input);
+                var isExtending = input.ReadValueEncodedS32();
                 if (isExtending != 0)
                 {
-                    var extendedTypeId = ReadEncodedInt32(input);
+                    var extendedTypeId = input.ReadValueEncodedS32();
                 }
 
-                var unk2_4 = ReadEncodedInt32(input);
+                var unk2_4 = input.ReadValueEncodedS32();
                 for (int j = 0; j < unk2_4; j++)
                 {
-                    var unk2_9 = ReadEncodedInt32(input);
-                    var unk2_10 = ReadEncodedInt32(input);
+                    var unk2_9 = input.ReadValueEncodedS32();
+                    var unk2_10 = input.ReadValueEncodedS32();
                 }
 
                 for (int j = 0; j < rawTypeDef.UnknownCount; j++)
                 {
                     // string index?
-                    var unk2_8 = strings[ReadEncodedInt32(input)];
+                    var unk2_8 = strings[input.ReadValueEncodedS32()];
                 }
 
                 for (int j = 0; j < rawTypeDef.PropertyCount; j++)
                 {
-                    var propTypeId = ReadEncodedInt32(input);
-                    var propName = strings[ReadEncodedInt32(input)];
-                    var propFlags = ReadEncodedInt32(input);
+                    var propTypeId = input.ReadValueEncodedS32();
+                    var propName = strings[input.ReadValueEncodedS32()];
+                    var propFlags = input.ReadValueEncodedS32();
                     // 1 = editable
                     // 2 = const
                     // 32 = ?
@@ -178,21 +178,21 @@ namespace Gibbed.RED.FileFormats
                     continue;
                 }
 
-                var id = ReadEncodedInt32(input);
+                var id = input.ReadValueEncodedS32();
                 if (id != i)
                 {
                     throw new FormatException();
                 }
 
-                var defaultCount = ReadEncodedInt32(input);
+                var defaultCount = input.ReadValueEncodedS32();
                 for (int j = 0; j < defaultCount; j++)
                 {
-                    var propName = strings[ReadEncodedInt32(input)]; // string index?
-                    var dataType = ReadEncodedInt32(input);
+                    var propName = strings[input.ReadValueEncodedS32()]; // string index?
+                    var dataType = input.ReadValueEncodedS32();
 
                     if (dataType == 0 || dataType == 1)
                     {
-                        var typeName = ReadEncodedString(input);
+                        var typeName = input.ReadStringEncodedUnicode();
                         var typeDataSize = input.ReadValueU32(); // size + 4
                         var typeData = new byte[typeDataSize - 4];
                         input.Read(typeData, 0, typeData.Length);
@@ -214,39 +214,39 @@ namespace Gibbed.RED.FileFormats
                     continue;
                 }
 
-                var id = ReadEncodedInt32(input);
+                var id = input.ReadValueEncodedS32();
                 if (id != i)
                 {
                     throw new FormatException();
                 }
 
-                var rawFlags = ReadEncodedInt32(input);
+                var rawFlags = input.ReadValueEncodedS32();
                 var flags = (Script.FunctionFlags)rawFlags;
 
                 var hasReturnValue = input.ReadValueB8();
                 if (hasReturnValue == true)
                 {
-                    var returnValueTypeId = ReadEncodedInt32(input);
+                    var returnValueTypeId = input.ReadValueEncodedS32();
                 }
 
-                var argumentCount = ReadEncodedInt32(input);
+                var argumentCount = input.ReadValueEncodedS32();
                 for (int j = 0; j < argumentCount; j++)
                 {
-                    var argumentTypeId = ReadEncodedInt32(input);
-                    var argumentName = strings[ReadEncodedInt32(input)];
-                    var argumentFlags = ReadEncodedInt32(input);
+                    var argumentTypeId = input.ReadValueEncodedS32();
+                    var argumentName = strings[input.ReadValueEncodedS32()];
+                    var argumentFlags = input.ReadValueEncodedS32();
                 }
 
-                var localCount = ReadEncodedInt32(input);
+                var localCount = input.ReadValueEncodedS32();
                 for (int j = 0; j < localCount; j++)
                 {
-                    var localTypeId = ReadEncodedInt32(input);
-                    var localName = strings[ReadEncodedInt32(input)];
+                    var localTypeId = input.ReadValueEncodedS32();
+                    var localName = strings[input.ReadValueEncodedS32()];
                 }
 
                 if ((flags & Script.FunctionFlags.Import) == 0)
                 {
-                    var unencodedByteCodeLength = ReadEncodedInt32(input);
+                    var unencodedByteCodeLength = input.ReadValueEncodedS32();
                     int read;
                     for (read = 0; read < unencodedByteCodeLength; )
                     {
@@ -258,7 +258,7 @@ namespace Gibbed.RED.FileFormats
                         {
                             case Script.Opcode.U12:
                             {
-                                var op_0 = ReadEncodedInt32(input); read += 4;
+                                var op_0 = input.ReadValueEncodedS32(); read += 4;
                                 var op_1 = input.ReadValueU8(); read++;
                                 break;
                             }
@@ -271,7 +271,7 @@ namespace Gibbed.RED.FileFormats
 
                             case Script.Opcode.U04:
                             {
-                                var op_0 = ReadEncodedInt32(input); read += 4;
+                                var op_0 = input.ReadValueEncodedS32(); read += 4;
                                 break;
                             }
 
@@ -283,7 +283,7 @@ namespace Gibbed.RED.FileFormats
 
                             case Script.Opcode.U07:
                             {
-                                var op_0 = ReadEncodedInt32(input); read += 16;
+                                var op_0 = input.ReadValueEncodedS32(); read += 16;
                                 break;
                             }
 
@@ -291,7 +291,7 @@ namespace Gibbed.RED.FileFormats
                             {
                                 var op_0 = input.ReadValueU16(); read += 2;
                                 var op_1 = input.ReadValueU16(); read += 2;
-                                var op_2 = ReadEncodedInt32(input); read += 4;
+                                var op_2 = input.ReadValueEncodedS32(); read += 4;
                                 break;
                             }
 
@@ -317,15 +317,15 @@ namespace Gibbed.RED.FileFormats
                             case Script.Opcode.U17:
                             case Script.Opcode.U32:
                             {
-                                var op_0 = ReadEncodedInt32(input);
-                                var op_1 = ReadEncodedInt32(input);
+                                var op_0 = input.ReadValueEncodedS32();
+                                var op_1 = input.ReadValueEncodedS32();
                                 read += 4;
                                 break;
                             }
 
                             case Script.Opcode.U19:
                             {
-                                var op_0 = ReadEncodedInt32(input); read += 4;
+                                var op_0 = input.ReadValueEncodedS32(); read += 4;
                                 var op_1 = input.ReadValueU16(); read += 2;
                                 break;
                             }
@@ -333,7 +333,7 @@ namespace Gibbed.RED.FileFormats
                             case Script.Opcode.U26:
                             {
                                 var op_0 = input.ReadValueU8(); read++;
-                                var op_1 = ReadEncodedInt32(input); read += 4;
+                                var op_1 = input.ReadValueEncodedS32(); read += 4;
                                 break;
                             }
 
@@ -360,7 +360,7 @@ namespace Gibbed.RED.FileFormats
                             case Script.Opcode.U55:
                             case Script.Opcode.U41:
                             {
-                                var op_0 = ReadEncodedInt32(input); read += 4;
+                                var op_0 = input.ReadValueEncodedS32(); read += 4;
                                 break;
                             }
 
@@ -368,10 +368,10 @@ namespace Gibbed.RED.FileFormats
                             {
                                 var op_0 = input.ReadValueU16(); read += 2;
                                 var op_1 = input.ReadValueU16(); read += 2;
-                                var op_2 = ReadEncodedInt32(input);
+                                var op_2 = input.ReadValueEncodedS32();
                                 if (op_2 == -1)
                                 {
-                                    var op_3 = ReadEncodedInt32(input);
+                                    var op_3 = input.ReadValueEncodedS32();
                                 }
                                 read += 4;
                                 break;
@@ -381,7 +381,7 @@ namespace Gibbed.RED.FileFormats
                             case Script.Opcode.U40:
                             {
                                 var op_0 = input.ReadValueU16(); read += 2;
-                                var op_1 = ReadEncodedInt32(input); read += 4;
+                                var op_1 = input.ReadValueEncodedS32(); read += 4;
                                 break;
                             }
 
@@ -434,65 +434,6 @@ namespace Gibbed.RED.FileFormats
                         throw new InvalidOperationException();
                     }
                 }
-            }
-        }
-
-        protected static int ReadEncodedInt32(Stream stream)
-        {
-            var op = stream.ReadValueU8();
-
-            uint value = (byte)(op & 0x3F);
-
-            if ((op & 0x40) != 0)
-            {
-                int shift = 6;
-                byte extra;
-                do
-                {
-                    if (shift > 27)
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    extra = stream.ReadValueU8();
-                    value |= (uint)(extra & 0x7F) << shift;
-                    shift += 7;
-                }
-                while ((extra & 0x80) != 0);
-            }
-
-            if ((op & 0x80) != 0)
-            {
-                return -(int)value;
-            }
-
-            return (int)value;
-        }
-
-        protected static string ReadEncodedString(Stream stream)
-        {
-            var length = ReadEncodedInt32(stream);
-
-            if (length < 0)
-            {
-                length = -length;
-                if (length >= 0x10000)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                // ASCII
-                return stream.ReadString(length, true, Encoding.ASCII);
-            }
-            else
-            {
-                if (length >= 0x10000)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                // Unicode
-                return stream.ReadString(length * 2, true, Encoding.Unicode);
             }
         }
     }
