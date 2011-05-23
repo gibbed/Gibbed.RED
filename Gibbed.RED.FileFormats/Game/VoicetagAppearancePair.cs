@@ -30,5 +30,9 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertyName("voicetag")]
         [PropertySerializer(typeof(CNameSerializer))]
         public string Voicetag { get; set; }
+
+        [PropertyName("appearance")]
+        [PropertySerializer(typeof(CNameSerializer))]
+        public string Appearance { get; set; }
     }
 }
