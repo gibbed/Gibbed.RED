@@ -22,11 +22,11 @@
 
 using System.Collections.Generic;
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
-    public class CEntityAppearance : TypedClass
+    public class CEntityAppearance : TTypedClass
     {
         [PropertyName("name")]
         [PropertySerializer(typeof(CNameSerializer))]
@@ -37,7 +37,7 @@ namespace Gibbed.RED.FileFormats.Game
         public List<string> Parts { get; set; }
 
         [PropertyName("colorVariants")]
-        [PropertySerializer(typeof(ArraySerializer<CEntityColorVariant, ClassSerializer<CEntityColorVariant>>))]
+        [PropertySerializer(typeof(ArraySerializer<CEntityColorVariant, StructureSerializer<CEntityColorVariant>>))]
         public List<CEntityColorVariant> ColorVariants { get; set; }
 
         [PropertyName("useVertexCollapse")]

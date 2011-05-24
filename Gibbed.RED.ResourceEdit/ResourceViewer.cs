@@ -65,21 +65,20 @@ namespace Gibbed.RED.ResourceEdit
             root.SelectedImageKey = "RESOURCE";
 
             var nodes =
-                new Dictionary<FileFormats.Resource.Object, TreeNode>();
+                new Dictionary<FileFormats.Resource.ObjectInfo, TreeNode>();
             var queue =
-                new Queue<FileFormats.Resource.Object>(this.FileData.Objects);
+                new Queue<FileFormats.Resource.ObjectInfo>(this.FileData.Objects);
 
             while (queue.Count > 0)
             {
                 var obj = queue.Dequeue();
 
-                var typeName = this.FileData.ReadString(obj.TypeNameIndex);
-                var node = new TreeNode(typeName);
+                var node = new TreeNode(obj.TypeName);
 
-                if (this.entryTreeView.ImageList.Images.ContainsKey(typeName) == true)
+                if (this.entryTreeView.ImageList.Images.ContainsKey(obj.TypeName) == true)
                 {
-                    node.ImageKey = typeName;
-                    node.SelectedImageKey = typeName;
+                    node.ImageKey = obj.TypeName;
+                    node.SelectedImageKey = obj.TypeName;
                 }
                 else
                 {
@@ -119,33 +118,32 @@ namespace Gibbed.RED.ResourceEdit
 
         private void OpenObject(TreeNode node)
         {
-            var obj = node.Tag as FileFormats.Resource.Object;
+            var obj = node.Tag as FileFormats.Resource.ObjectInfo;
             if (obj == null)
             {
                 return;
             }
 
-            var typeName = this.FileData.ReadString(obj.TypeNameIndex);
-            if (typeName == "CBitmapTexture")
+            if (obj.TypeName == "CBitmapTexture")
             {
                 var viewer = new TextureViewer()
                 {
                     MdiParent = this.MdiParent,
                 };
-                viewer.LoadFile(this.FileData, obj);
+                viewer.LoadFile(obj);
                 viewer.Show();
             }
-            else if (typeName == "CMesh")
+            else if (obj.TypeName == "CMesh")
             {
                 var mesh = new FileFormats.Game.CMesh();
-                obj.Data.Position = 0;
-                mesh.Deserialize(this.FileData, obj.Data);
+                //obj.Data.Position = 0;
+                //mesh.Deserialize(this.FileData, obj.Data);
             }
-            else if (typeName == "CEntityTemplate")
+            else if (obj.TypeName == "CEntityTemplate")
             {
                 var template = new FileFormats.Game.CEntityTemplate();
-                obj.Data.Position = 0;
-                template.Deserialize(this.FileData, obj.Data);
+                //obj.Data.Position = 0;
+                //template.Deserialize(this.FileData, obj.Data);
             }
         }
 

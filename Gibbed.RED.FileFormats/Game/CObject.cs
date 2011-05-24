@@ -27,19 +27,14 @@ using Gibbed.RED.FileFormats.Resource;
 
 namespace Gibbed.RED.FileFormats.Game
 {
-    public class CObject : TypedClass
+    public class CObject : IFileObject
     {
         public byte CObjectUnknown0;
 
-        public override void Serialize(IResourceFile resource, Stream output)
+        public virtual void Serialize(IFileStream stream)
         {
-            throw new NotImplementedException();
-        }
-
-        public override void Deserialize(IResourceFile resource, Stream input)
-        {
-            base.Deserialize(resource, input);
-            this.CObjectUnknown0 = input.ReadValueU8();
+            PropertySerializer.Serialize(this, stream);
+            stream.SerializeValue(ref this.CObjectUnknown0);
         }
     }
 }

@@ -21,18 +21,18 @@
  */
 
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
-    public class Box : TypedClass
+    public class Box : TTypedClass
     {
         [PropertyName("Min")]
-        [PropertySerializer(typeof(ClassSerializer<Vector>))]
+        [PropertySerializer(typeof(StructureSerializer<Vector>))]
         public Vector Min { get; set; }
 
         [PropertyName("Max")]
-        [PropertySerializer(typeof(ClassSerializer<Vector>))]
+        [PropertySerializer(typeof(StructureSerializer<Vector>))]
         public Vector Max { get; set; }
     }
 }

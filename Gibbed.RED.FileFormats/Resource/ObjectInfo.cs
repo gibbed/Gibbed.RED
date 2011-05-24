@@ -20,23 +20,20 @@
  *    distribution.
  */
 
-using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Serializers;
+using System.Collections.Generic;
+using System.IO;
 
-namespace Gibbed.RED.FileFormats.Game
+namespace Gibbed.RED.FileFormats.Resource
 {
-    public class CEntityColorVariant : TTypedClass
+    public class ObjectInfo
     {
-        [PropertyName("name")]
-        [PropertySerializer(typeof(CNameSerializer))]
-        public string Name { get; set; }
+        public string TypeName;
+        public uint Flags;
+        public uint Unknown5;
+        public string Link;
+        public IFileObject Data;
 
-        [PropertyName("regionOneShift")]
-        [PropertySerializer(typeof(StructureSerializer<CColorShift>))]
-        public CColorShift RegionOneShift { get; set; }
-
-        [PropertyName("regionTwoShift")]
-        [PropertySerializer(typeof(StructureSerializer<CColorShift>))]
-        public CColorShift RegionTwoShift { get; set; }
+        public ObjectInfo Parent;
+        public List<ObjectInfo> Children;
     }
 }

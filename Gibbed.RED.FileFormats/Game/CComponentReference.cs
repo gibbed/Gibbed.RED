@@ -21,11 +21,11 @@
  */
 
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
-    public class CComponentReference : TypedClass
+    public class CComponentReference : TTypedClass
     {
         [PropertyName("name")]
         [PropertySerializer(typeof(StringSerializer))]

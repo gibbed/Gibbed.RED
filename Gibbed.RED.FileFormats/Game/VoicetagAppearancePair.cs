@@ -21,11 +21,11 @@
  */
 
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
-    public class VoicetagAppearancePair : TypedClass
+    public class VoicetagAppearancePair : TTypedClass
     {
         [PropertyName("voicetag")]
         [PropertySerializer(typeof(CNameSerializer))]

@@ -25,10 +25,11 @@ using System.Collections.Generic;
 using System.IO;
 using Gibbed.Helpers;
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
+    [ResourceHandler("CBitmapTexture")]
     public class CBitmapTexture : CResource
     {
         [PropertyName("width")]
@@ -63,8 +64,14 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertySerializer(typeof(StringSerializer))]
         public string ImportFile { get; set; }
 
-        public uint Unknown0 { get; set; }
+        public uint Unknown0
+        {
+            get { return this._Unknown0; }
+            set { this._Unknown0 = value; }
+        }
         public List<Mipmap> Mipmaps { get; set; }
+
+        private uint _Unknown0;
 
         public CBitmapTexture()
         {
@@ -79,39 +86,51 @@ namespace Gibbed.RED.FileFormats.Game
             this.Mipmaps = new List<Mipmap>();
         }
 
-        public override void Deserialize(IResourceFile resource, Stream input)
+        public override void Serialize(IFileStream stream)
         {
-            base.Deserialize(resource, input);
+            base.Serialize(stream);
 
-            this.Unknown0 = input.ReadValueU32();
+            stream.SerializeValue(ref this._Unknown0);
             if (this.Unknown0 != 0)
             {
                 throw new FormatException();
             }
 
-            this.Mipmaps.Clear();
-            var mipCount = input.ReadValueU32();
-            for (uint i = 0; i < mipCount; i++)
+            if (stream.Mode == SerializeMode.Reading)
             {
-                var mip = new Mipmap();
-                mip.Width = input.ReadValueU32();
-                mip.Height = input.ReadValueU32();
-                mip.Unknown2 = input.ReadValueU32();
+                this.Mipmaps.Clear();
 
-                var size = input.ReadValueU32();
+                uint mipmapCount = 0;
+                stream.SerializeValue(ref mipmapCount);
 
-                mip.Data = new byte[size];
-                input.Read(mip.Data, 0, mip.Data.Length);
-                this.Mipmaps.Add(mip);
+                for (uint i = 0; i < mipmapCount; i++)
+                {
+                    var mip = new Mipmap();
+                    stream.SerializeValue(ref mip.Width);
+                    stream.SerializeValue(ref mip.Height);
+                    stream.SerializeValue(ref mip.Unknown2);
+
+                    uint size = 0;
+                    stream.SerializeValue(ref size);
+                    stream.SerializeValue(ref mip.Data, size);
+
+                    this.Mipmaps.Add(mip);
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
 
-            var unknown1 = input.ReadValueU32();
+            uint unknown1 = 0;
+            stream.SerializeValue(ref unknown1);
             if (unknown1 != 0)
             {
                 throw new FormatException();
             }
 
-            var unknown2 = input.ReadValueU8();
+            byte unknown2 = 0;
+            stream.SerializeValue(ref unknown2);
             if (unknown2 != 0)
             {
                 throw new FormatException();

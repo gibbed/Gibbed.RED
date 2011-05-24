@@ -23,14 +23,15 @@
 using System.Collections.Generic;
 using System.IO;
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
+    [ResourceHandler("CEntityTemplate")]
     public class CEntityTemplate : CResource
     {
         [PropertyName("backgroundOffset")]
-        [PropertySerializer(typeof(ClassSerializer<Vector>))]
+        [PropertySerializer(typeof(StructureSerializer<Vector>))]
         public Vector BackgroundOffset { get; set; }
 
         [PropertyName("entityClass")]
@@ -39,18 +40,18 @@ namespace Gibbed.RED.FileFormats.Game
 
         [PropertyName("entityObject")]
         [PropertySerializer(typeof(PointerSerializer))]
-        public object EntityObject { get; set; }
+        public IFileObject EntityObject { get; set; }
 
         [PropertyName("cookedEntityObject")]
         [PropertySerializer(typeof(PointerSerializer))]
-        public object CookedEntityObject { get; set; }
+        public IFileObject CookedEntityObject { get; set; }
 
         [PropertyName("bodyParts")]
-        [PropertySerializer(typeof(ArraySerializer<CEntityBodyPart, ClassSerializer<CEntityBodyPart>>))]
+        [PropertySerializer(typeof(ArraySerializer<CEntityBodyPart, StructureSerializer<CEntityBodyPart>>))]
         public List<CEntityBodyPart> BodyParts { get; set; }
 
         [PropertyName("appearances")]
-        [PropertySerializer(typeof(ArraySerializer<CEntityAppearance, ClassSerializer<CEntityAppearance>>))]
+        [PropertySerializer(typeof(ArraySerializer<CEntityAppearance, StructureSerializer<CEntityAppearance>>))]
         public List<CEntityAppearance> Appearances { get; set; }
 
         [PropertyName("usedAppearances")]
@@ -58,7 +59,7 @@ namespace Gibbed.RED.FileFormats.Game
         public List<string> UsedAppearances { get; set; }
 
         [PropertyName("voicetagAppearances")]
-        [PropertySerializer(typeof(ArraySerializer<VoicetagAppearancePair, ClassSerializer<VoicetagAppearancePair>>))]
+        [PropertySerializer(typeof(ArraySerializer<VoicetagAppearancePair, StructureSerializer<VoicetagAppearancePair>>))]
         public List<VoicetagAppearancePair> VoicetagAppearances { get; set; }
 
         [PropertyName("effects")]
@@ -66,7 +67,7 @@ namespace Gibbed.RED.FileFormats.Game
         public List<object> Effects { get; set; }
 
         [PropertyName("slots")]
-        [PropertySerializer(typeof(ArraySerializer<EntitySlot, ClassSerializer<EntitySlot>>))]
+        [PropertySerializer(typeof(ArraySerializer<EntitySlot, StructureSerializer<EntitySlot>>))]
         public List<EntitySlot> Slots { get; set; }
 
         [PropertyName("templateParams")]
@@ -77,11 +78,9 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertySerializer(typeof(BoolSerializer))]
         public bool WasMerged { get; set; }
 
-        public override void Deserialize(
-            IResourceFile resource, Stream input)
+        public override void Serialize(IFileStream stream)
         {
-            base.Deserialize(resource, input);
-
+            base.Serialize(stream);
             // not complete
         }
     }

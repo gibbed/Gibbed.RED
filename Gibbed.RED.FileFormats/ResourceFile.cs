@@ -27,40 +27,14 @@ using Gibbed.Helpers;
 
 namespace Gibbed.RED.FileFormats
 {
-    public class ResourceFile : Resource.IResourceFile
+    public class ResourceFile
     {
         public uint Version;
 
-        public List<string> Strings
+        public List<Resource.ObjectInfo> Objects
+            = new List<Resource.ObjectInfo>();
+        public List<string> Dependencies
             = new List<string>();
-        public List<Resource.Dependency> Dependencies
-            = new List<Resource.Dependency>();
-        public List<Resource.Object> Objects
-            = new List<Resource.Object>();
-        public List<string> Unknown3s
-            = new List<string>();
-
-        public string ReadString(int id)
-        {
-            if (id < 1 || id > this.Strings.Count)
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            return this.Strings[id - 1];
-        }
-
-        public int WriteString(string value)
-        {
-            int index = this.Strings.IndexOf(value);
-            if (index >= 0)
-            {
-                return 1 + index;
-            }
-
-            this.Strings.Add(value);
-            return this.Strings.Count;
-        }
 
         public void Deserialize(Stream input)
         {
@@ -77,94 +51,100 @@ namespace Gibbed.RED.FileFormats
 
             var flags = input.ReadValueU32();
 
-            uint stringDataOffset = input.ReadValueU32();
-            uint stringCount = input.ReadValueU32();
-            uint objectDataOffset = input.ReadValueU32();
-            uint objectCount = input.ReadValueU32();
-            uint dependencyDataOffset = input.ReadValueU32();
-            uint dependencyCount = input.ReadValueU32();
-            uint unk3Offset = 0;
-            uint unk3Count = 0;
+            var nameDataOffset = input.ReadValueU32();
+            var nameCount = input.ReadValueU32();
+            var objectDataOffset = input.ReadValueU32();
+            var objectCount = input.ReadValueU32();
+            var linkDataOffset = input.ReadValueU32();
+            var linkCount = input.ReadValueU32();
+            uint dependencyDataOffset = 0;
+            uint dependencyCount = 0;
 
             if (this.Version >= 46)
             {
-                unk3Offset = input.ReadValueU32();
-                unk3Count = input.ReadValueU32();
+                dependencyDataOffset = input.ReadValueU32();
+                dependencyCount = input.ReadValueU32();
             }
 
-            this.Strings.Clear();
-            if (stringCount > 0)
+            var info = new Resource.Info();
+            
+            info.Names = new string[nameCount];
+            if (nameCount > 0)
             {
-                input.Seek(stringDataOffset, SeekOrigin.Begin);
-                for (uint i = 0; i < stringCount; i++)
+                input.Seek(nameDataOffset, SeekOrigin.Begin);
+                for (uint i = 0; i < nameCount; i++)
                 {
-                    this.Strings.Add(input.ReadStringEncodedUnicode());
+                    info.Names[i] = input.ReadStringEncodedUnicode();
+                }
+            }
+
+            info.Links = new Resource.LinkInfo[linkCount];
+            if (linkCount > 0)
+            {
+                input.Seek(linkDataOffset, SeekOrigin.Begin);
+
+                for (uint i = 0; i < linkCount; i++)
+                {
+                    var link = new Resource.LinkInfo();
+                    link.FileName = input.ReadStringEncoded();
+                    link.Unknown1 = input.ReadValueU16();
+                    link.Unknown2 = input.ReadValueU16();
+                    info.Links[i] = link;
                 }
             }
 
             this.Dependencies.Clear();
-            if (dependencyCount > 0)
+            if (dependencyCount > 1)
             {
                 input.Seek(dependencyDataOffset, SeekOrigin.Begin);
 
-                for (uint i = 0; i < dependencyCount; i++)
+                for (uint i = 1; i < dependencyCount; i++)
                 {
-                    var dependency = new Resource.Dependency();
-                    dependency.Unknown0 = input.ReadStringEncoded();
-                    dependency.Unknown1 = input.ReadValueU16();
-                    dependency.Unknown2 = input.ReadValueU16();
-                    this.Dependencies.Add(dependency);
+                    this.Dependencies.Add(input.ReadStringEncodedUnicode());
                 }
             }
 
-            this.Unknown3s.Clear();
-            if (this.Version >= 46 && unk3Count > 1)
-            {
-                input.Seek(unk3Offset, SeekOrigin.Begin);
-
-                for (uint i = 1; i < unk3Count; i++)
-                {
-                    this.Unknown3s.Add(input.ReadStringEncodedUnicode());
-                }
-            }
-
-            /* TODO: since objects can reference other objects
-             * we need to deserialize everything at this point
-             * into their classes so references can be picked
-             * up properly where as it would probably desynchronize
-             * if we did lazy loading.
-             * 
-             * Though this means we need a much better number of
-             * implemented class serializers. */
-            this.Objects = new List<Resource.Object>();
+            this.Objects = new List<Resource.ObjectInfo>();
+            info.Objects = new Resource.ObjectInfo[objectCount];
             if (objectCount > 0)
             {
                 input.Seek(objectDataOffset, SeekOrigin.Begin);
 
-                var objects = new List<Resource.Object>();
+                var offsets = new Dictionary<Resource.ObjectInfo, ObjectLocation>();
+
                 for (uint i = 0; i < objectCount; i++)
                 {
-                    var obj = new Resource.Object();
-                    obj.TypeNameIndex = input.ReadValueS16();
-                    if (obj.TypeNameIndex < 1 ||
-                        obj.TypeNameIndex > this.Strings.Count)
+                    var typeNameIndex = input.ReadValueS16();
+                    if (typeNameIndex < 1 ||
+                        typeNameIndex > info.Names.Length)
                     {
                         throw new FormatException();
                     }
 
+                    var obj = new Resource.ObjectInfo();
+                    obj.TypeName = info.Names[typeNameIndex - 1];
+
                     var parentIndex = input.ReadValueS32();
-                    var size = input.ReadValueU32();
-                    var offset = input.ReadValueU32();
+
+                    var location = new ObjectLocation();
+                    location.Size = input.ReadValueU32();
+                    location.Offset = input.ReadValueU32();
+
                     obj.Flags = input.ReadValueU32();
                     obj.Unknown5 = input.ReadValueU32();
                     obj.Link = this.Version < 102 ? null : input.ReadStringEncodedUnicode();
 
-                    var position = input.Position;
-                    input.Seek(offset, SeekOrigin.Begin);
-                    obj.Data = input.ReadToMemoryStream(size);
-                    input.Seek(position, SeekOrigin.Begin);
+                    if (TypeCache.Supports(obj.TypeName) == false)
+                    {
+                        obj.Data = new Resource.Dummy();
+                    }
+                    else
+                    {
+                        obj.Data = TypeCache.Instantiate(obj.TypeName);
+                    }
 
-                    objects.Add(obj);
+                    info.Objects[i] = obj;
+                    offsets.Add(obj, location);
 
                     if (obj.Unknown5 != 0)
                     {
@@ -173,10 +153,10 @@ namespace Gibbed.RED.FileFormats
 
                     if (parentIndex > 0)
                     {
-                        var parent = objects[parentIndex - 1];
+                        var parent = info.Objects[parentIndex - 1];
                         if (parent.Children == null)
                         {
-                            parent.Children = new List<Resource.Object>();
+                            parent.Children = new List<Resource.ObjectInfo>();
                         }
                         parent.Children.Add(obj);
                         obj.Parent = parent;
@@ -187,7 +167,90 @@ namespace Gibbed.RED.FileFormats
                         this.Objects.Add(obj);
                     }
                 }
+
+                foreach (var obj in info.Objects)
+                {
+                    var location = offsets[obj];
+
+                    input.Seek(location.Offset, SeekOrigin.Begin);
+                    
+                    var data = new byte[location.Size];
+                    input.Read(data, 0, data.Length);
+
+                    using (var reader = new Resource.ResourceReader(info, data))
+                    {
+                        obj.Data.Serialize(reader);
+
+                        if (reader.Position != reader.Length)
+                        {
+                            //throw new FormatException();
+                        }
+                    }
+                }
             }
         }
+
+        private struct ObjectLocation
+        {
+            public uint Offset;
+            public uint Size;
+        }
+
+        #region TypeCache
+        // Lame ass way to do this but, it'll work for now.
+        private static class TypeCache
+        {
+            private static Dictionary<string, Type> Lookup = null;
+
+            private static void BuildLookup()
+            {
+                Lookup = new Dictionary<string, Type>();
+
+                foreach (var type in System.Reflection.Assembly
+                    .GetAssembly(typeof(TypeCache)).GetTypes())
+                {
+                    if (typeof(IFileObject).IsAssignableFrom(type) == false)
+                    {
+                        continue;
+                    }
+
+                    foreach (ResourceHandlerAttribute attribute in
+                        type.GetCustomAttributes(typeof(ResourceHandlerAttribute), false))
+                    {
+                        if (Lookup.ContainsKey(attribute.Name) == true)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        Lookup.Add(attribute.Name, type);
+                    }
+                }
+            }
+
+            public static bool Supports(string className)
+            {
+                if (Lookup == null)
+                {
+                    BuildLookup();
+                }
+
+                return Lookup.ContainsKey(className);
+            }
+
+            public static IFileObject Instantiate(string className)
+            {
+                if (Lookup == null)
+                {
+                    BuildLookup();
+                }
+                else if (Lookup.ContainsKey(className) == false)
+                {
+                    return null;
+                }
+
+                return (IFileObject)Activator.CreateInstance(Lookup[className]);
+            }
+        }
+        #endregion
     }
 }

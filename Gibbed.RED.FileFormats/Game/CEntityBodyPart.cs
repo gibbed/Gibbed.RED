@@ -22,18 +22,18 @@
 
 using System.Collections.Generic;
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
-    public class CEntityBodyPart : TypedClass
+    public class CEntityBodyPart : TTypedClass
     {
         [PropertyName("name")]
         [PropertySerializer(typeof(CNameSerializer))]
         public string Name { get; set; }
 
         [PropertyName("states")]
-        [PropertySerializer(typeof(ArraySerializer<CEntityBodyPartState, ClassSerializer<CEntityBodyPartState>>))]
+        [PropertySerializer(typeof(ArraySerializer<CEntityBodyPartState, StructureSerializer<CEntityBodyPartState>>))]
         public List<CEntityBodyPartState> States { get; set; }
 
         [PropertyName("wasIncluded")]

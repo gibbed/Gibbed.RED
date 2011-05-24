@@ -20,23 +20,38 @@
  *    distribution.
  */
 
+using System;
+using System.IO;
+using Gibbed.Helpers;
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Serializers;
 
-namespace Gibbed.RED.FileFormats.Game
+namespace Gibbed.RED.FileFormats.Serializers
 {
-    public class CEntityColorVariant : TTypedClass
+    public class ETextureRawFormatSerializer : IPropertySerializer
     {
-        [PropertyName("name")]
-        [PropertySerializer(typeof(CNameSerializer))]
-        public string Name { get; set; }
+        public void Serialize(IFileStream stream, object value)
+        {
+            throw new NotImplementedException();
+        }
 
-        [PropertyName("regionOneShift")]
-        [PropertySerializer(typeof(StructureSerializer<CColorShift>))]
-        public CColorShift RegionOneShift { get; set; }
+        public object Deserialize(IFileStream stream)
+        {
+            string value = null;
+            stream.SerializeName(ref value);
 
-        [PropertyName("regionTwoShift")]
-        [PropertySerializer(typeof(StructureSerializer<CColorShift>))]
-        public CColorShift RegionTwoShift { get; set; }
+            if (value.Substring(0, 4) != "TRF_")
+            {
+                throw new FormatException("not a valid value for ETextureRawFormat");
+            }
+
+            value = value.Substring(4);
+            if (Enum.IsDefined(typeof(Game.ETextureRawFormat), value) == false)
+            {
+                throw new FormatException();
+            }
+
+            return (Game.ETextureRawFormat)Enum
+                .Parse(typeof(Game.ETextureRawFormat), value);
+        }
     }
 }

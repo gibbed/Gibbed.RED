@@ -23,10 +23,11 @@
 using System.Collections.Generic;
 using System.IO;
 using Gibbed.RED.FileFormats.Resource;
-using Gibbed.RED.FileFormats.Resource.Serializers;
+using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
+    [ResourceHandler("CMesh")]
     public class CMesh : CResource
     {
         [PropertyName("materials")]
@@ -34,7 +35,7 @@ namespace Gibbed.RED.FileFormats.Game
         public List<object> Materials { get; set; }
 
         [PropertyName("boundingBox")]
-        [PropertySerializer(typeof(ClassSerializer<Box>))]
+        [PropertySerializer(typeof(StructureSerializer<Box>))]
         public Box BoundingBox { get; set; }
 
         [PropertyName("autoHideDistance")]
@@ -49,11 +50,9 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertySerializer(typeof(StringSerializer))]
         public string ImportFile { get; set; }
 
-        public override void Deserialize(
-            IResourceFile resource, Stream input)
+        public override void Serialize(IFileStream stream)
         {
-            base.Deserialize(resource, input);
-
+            base.Serialize(stream);
             // not complete
         }
     }
