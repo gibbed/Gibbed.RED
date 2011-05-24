@@ -43,10 +43,16 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertySerializer(typeof(GuidSerializer))]
         public Guid Guid { get; set; }
 
+        public List<IFileObject> CNodeUnknown0;
+        public List<IFileObject> CNodeUnknown1;
+        public ProbablyMatrix4x4 CNodeUnknown2;
+
         public override void Serialize(IFileStream stream)
         {
             base.Serialize(stream);
-            throw new NotImplementedException();
+            stream.SerializePointer(ref this.CNodeUnknown0, false);
+            stream.SerializePointer(ref this.CNodeUnknown1, false);
+            stream.SerializeObject(ref this.CNodeUnknown2);
         }
     }
 }

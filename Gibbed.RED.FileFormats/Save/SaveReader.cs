@@ -437,6 +437,11 @@ namespace Gibbed.RED.FileFormats.Save
             ((IFileStream)this).SerializeValue(ref value, (int)length);
         }
 
+        void IFileStream.SerializeBuffer(ref byte[] value)
+        {
+            throw new NotSupportedException();
+        }
+
         void IFileStream.SerializeName(ref string value)
         {
             value = this.Stream.ReadStringEncodedUnicode();
@@ -447,7 +452,17 @@ namespace Gibbed.RED.FileFormats.Save
             throw new NotSupportedException();
         }
 
+        void IFileStream.SerializeObject<TType>(ref TType value)
+        {
+            throw new NotSupportedException();
+        }
+
         void IFileStream.SerializePointer(ref IFileObject value)
+        {
+            throw new NotSupportedException();
+        }
+
+        void IFileStream.SerializePointer(ref List<IFileObject> value, bool encoded)
         {
             throw new NotSupportedException();
         }

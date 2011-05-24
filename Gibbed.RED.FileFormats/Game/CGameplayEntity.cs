@@ -36,6 +36,9 @@ namespace Gibbed.RED.FileFormats.Game
         public IFileObject Stats { get; set; }
 
         // isInteractionActivator
-        // aimVector
+
+        [PropertyName("aimVector")]
+        [PropertySerializer(typeof(ClassSerializer<Vector>))]
+        public Vector AimVector { get; set; }
     }
 }

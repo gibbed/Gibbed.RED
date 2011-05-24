@@ -76,10 +76,13 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertySerializer(typeof(BoolSerializer))]
         public bool WasMerged { get; set; }
 
+        // Nested ResourceFile? :wtc:
+        public byte[] CEntityTemplateUnknown0;
+
         public override void Serialize(IFileStream stream)
         {
             base.Serialize(stream);
-            // not complete
+            stream.SerializeBuffer(ref this.CEntityTemplateUnknown0);
         }
     }
 }

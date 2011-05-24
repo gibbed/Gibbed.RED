@@ -183,7 +183,7 @@ namespace Gibbed.RED.FileFormats
 
                         if (reader.Position != reader.Length)
                         {
-                            //throw new FormatException();
+                            throw new FormatException();
                         }
                     }
                 }

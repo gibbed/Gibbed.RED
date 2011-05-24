@@ -35,11 +35,5 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertyName("diceDifficultyLevel")]
         [PropertySerializer(typeof(EnumSerializer<EDicePokerLevel>))]
         public EDicePokerLevel DiceDifficultyLevel { get; set; }
-
-        public override void Serialize(IFileStream stream)
-        {
-            base.Serialize(stream);
-            throw new NotImplementedException();
-        }
     }
 }

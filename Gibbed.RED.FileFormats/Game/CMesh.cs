@@ -20,6 +20,7 @@
  *    distribution.
  */
 
+using System;
 using System.Collections.Generic;
 using Gibbed.RED.FileFormats.Serializers;
 
@@ -51,7 +52,7 @@ namespace Gibbed.RED.FileFormats.Game
         public override void Serialize(IFileStream stream)
         {
             base.Serialize(stream);
-            // not complete
+            throw new NotImplementedException();
         }
     }
 }

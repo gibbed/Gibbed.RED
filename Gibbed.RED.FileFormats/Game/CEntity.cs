@@ -21,6 +21,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
@@ -36,12 +37,16 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertySerializer(typeof(CNameSerializer))]
         public string Appearance { get; set; }
 
-        // colorVariant
+        [PropertyName("colorVariant")]
+        [PropertySerializer(typeof(ClassSerializer<CEntityColorVariant>))]
+        public CEntityColorVariant ColorVariant { get; set; }
+
+        public List<IFileObject> CEntityUnknown1;
 
         public override void Serialize(IFileStream stream)
         {
             base.Serialize(stream);
-            throw new NotImplementedException();
+            stream.SerializePointer(ref this.CEntityUnknown1, true);
         }
     }
 }

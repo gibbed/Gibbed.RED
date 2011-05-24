@@ -30,11 +30,5 @@ namespace Gibbed.RED.FileFormats.Game
         [PropertyName("firstDynamicComponent")]
         [PropertySerializer(typeof(UintSerializer))]
         public uint FirstDynamicComponent { get; set; }
-
-        public override void Serialize(IFileStream stream)
-        {
-            base.Serialize(stream);
-            throw new NotImplementedException();
-        }
     }
 }

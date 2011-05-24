@@ -20,16 +20,15 @@
  *    distribution.
  */
 
-using System;
+using Gibbed.RED.FileFormats.Serializers;
 
-namespace Gibbed.RED.FileFormats.Game
+namespace Gibbed.RED.FileFormats.Game.Script
 {
-    public class CStateMachine : CObject
+    [ResourceHandler("CContainer")]
+    public class CContainer : CGameplayEntity
     {
-        public override void Serialize(IFileStream stream)
-        {
-            base.Serialize(stream);
-            //throw new NotImplementedException();
-        }
+        [PropertyName("isDynamic")]
+        [PropertySerializer(typeof(BoolSerializer))]
+        public bool IsDynamic { get; set; }
     }
 }

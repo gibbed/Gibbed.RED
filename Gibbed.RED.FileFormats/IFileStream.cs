@@ -23,8 +23,12 @@ namespace Gibbed.RED.FileFormats
         void SerializeValue(ref Guid value);
         void SerializeValue(ref byte[] value, int length);
         void SerializeValue(ref byte[] value, uint length);
+        void SerializeBuffer(ref byte[] value);
         void SerializeName(ref string value);
         void SerializeTagList(ref List<string> value);
+        void SerializeObject<TType>(ref TType value)
+            where TType : IFileObject, new();
         void SerializePointer(ref IFileObject value);
+        void SerializePointer(ref List<IFileObject> value, bool encoded);
     }
 }

@@ -160,6 +160,14 @@ namespace Gibbed.RED.FileFormats.Resource
             ((IFileStream)this).SerializeValue(ref value, (int)length);
         }
 
+        void IFileStream.SerializeBuffer(ref byte[] value)
+        {
+            var length = this.Stream.ReadValueEncodedS32();
+            var buffer = new byte[length];
+            this.Stream.Read(buffer, 0, buffer.Length);
+            value = buffer;
+        }
+
         void IFileStream.SerializeName(ref string value)
         {
             var index = this.Stream.ReadValueS16();
@@ -189,6 +197,13 @@ namespace Gibbed.RED.FileFormats.Resource
                 list.Add(item);
             }
             value = list;
+        }
+
+        void IFileStream.SerializeObject<TType>(ref TType value)
+        {
+            var instance = new TType();
+            instance.Serialize(this);
+            value = instance;
         }
 
         void IFileStream.SerializePointer(ref IFileObject value)
@@ -229,6 +244,22 @@ namespace Gibbed.RED.FileFormats.Resource
                 value = link;
             }
         }
+
+        void IFileStream.SerializePointer(ref List<IFileObject> value, bool encoded)
+        {
+            var count = encoded == false ?
+                this.Stream.ReadValueS32() :
+                this.Stream.ReadValueEncodedS32();
+            var list = new List<IFileObject>();
+            for (int i = 0; i < count; i++)
+            {
+                IFileObject item = null;
+                ((IFileStream)this).SerializePointer(ref item);
+                list.Add(item);
+            }
+            value = list;
+        }
+
         #endregion
     }
 }
