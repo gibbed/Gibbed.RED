@@ -41,12 +41,12 @@ namespace Gibbed.RED.FileFormats.Game
 
         [PropertyName("format")]
         [PropertyDescription("Source texture format type")]
-        [PropertySerializer(typeof(ETextureRawFormatSerializer))]
+        [PropertySerializer(typeof(EnumSerializer<ETextureRawFormat>))]
         public ETextureRawFormat Format { get; set; }
 
         [PropertyName("compression")]
         [PropertyDescription("Compression method to use")]
-        [PropertySerializer(typeof(ETextureCompressionSerializer))]
+        [PropertySerializer(typeof(EnumSerializer<ETextureCompression>))]
         public ETextureCompression Compression { get; set; }
 
         [PropertyName("textureGroup")]
@@ -76,8 +76,8 @@ namespace Gibbed.RED.FileFormats.Game
             this.Height = 0;
             this.PreserveArtistData = false;
             this.ImportFile = "";
-            this.Format = ETextureRawFormat.TrueColor;
-            this.Compression = ETextureCompression.None;
+            this.Format = ETextureRawFormat.TRF_TrueColor;
+            this.Compression = ETextureCompression.TCM_None;
 
             this.Unknown0 = 0;
             this.Mipmaps = new List<Mipmap>();

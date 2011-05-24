@@ -21,10 +21,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace Gibbed.RED.FileFormats.Serializers
 {
-    public class BoolSerializer : IPropertySerializer
+    public class TagListSerializer : IPropertySerializer
     {
         public void Serialize(IFileStream stream, object value)
         {
@@ -33,8 +34,8 @@ namespace Gibbed.RED.FileFormats.Serializers
 
         public object Deserialize(IFileStream stream)
         {
-            bool value = false;
-            stream.SerializeValue(ref value);
+            List<string> value = null;
+            stream.SerializeTagList(ref value);
             return value;
         }
     }

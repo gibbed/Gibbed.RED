@@ -158,13 +158,13 @@ namespace Gibbed.RED.ResourceEdit
 
                 switch (this.Texture.Compression)
                 {
-                    case FileFormats.Game.ETextureCompression.None:
+                    case FileFormats.Game.ETextureCompression.TCM_None:
                     {
                         data = mip.Data;
                         break;
                     }
 
-                    case FileFormats.Game.ETextureCompression.DXTNoAlpha:
+                    case FileFormats.Game.ETextureCompression.TCM_DXTNoAlpha:
                     {
                         data = Squish.Native.DecompressImage(
                             mip.Data,
@@ -173,7 +173,7 @@ namespace Gibbed.RED.ResourceEdit
                         break;
                     }
 
-                    case FileFormats.Game.ETextureCompression.DXTAlpha:
+                    case FileFormats.Game.ETextureCompression.TCM_DXTAlpha:
                     {
                         data = Squish.Native.DecompressImage(
                             mip.Data,
@@ -197,7 +197,7 @@ namespace Gibbed.RED.ResourceEdit
                 {
                     switch (Texture.Format)
                     {
-                        case FileFormats.Game.ETextureRawFormat.TrueColor:
+                        case FileFormats.Game.ETextureRawFormat.TRF_TrueColor:
                         {
                             bitmap = MakeBitmapFromTrueColor(
                                 mip.Width, mip.Height,
@@ -205,7 +205,7 @@ namespace Gibbed.RED.ResourceEdit
                             break;
                         }
 
-                        case FileFormats.Game.ETextureRawFormat.Grayscale:
+                        case FileFormats.Game.ETextureRawFormat.TRF_Grayscale:
                         {
                             bitmap = MakeBitmapFromGrayscale(
                                 mip.Width, mip.Height,
@@ -213,7 +213,7 @@ namespace Gibbed.RED.ResourceEdit
                             break;
                         }
 
-                        case FileFormats.Game.ETextureRawFormat.AlphaGrayscale:
+                        case FileFormats.Game.ETextureRawFormat.TRF_AlphaGrayscale:
                         {
                             bitmap = MakeBitmapFromAlphaGrayscale(
                                 mip.Width, mip.Height,

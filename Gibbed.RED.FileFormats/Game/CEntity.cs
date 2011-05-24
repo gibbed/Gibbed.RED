@@ -21,21 +21,27 @@
  */
 
 using System;
+using Gibbed.RED.FileFormats.Serializers;
 
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public class CEntity : CNode
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
+        // components
+        // template
+        // autoPlayEffectName
+        // entityFlags
 
-        public object Deserialize(IFileStream stream)
+        [PropertyName("Appearance")]
+        [PropertySerializer(typeof(CNameSerializer))]
+        public string Appearance { get; set; }
+
+        // colorVariant
+
+        public override void Serialize(IFileStream stream)
         {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
+            base.Serialize(stream);
+            throw new NotImplementedException();
         }
     }
 }

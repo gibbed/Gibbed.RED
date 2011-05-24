@@ -24,10 +24,10 @@ namespace Gibbed.RED.FileFormats.Game
 {
     public enum ETextureRawFormat
     {
-        TrueColor = 0,
-        Grayscale = 1,
-        HDR = 2,
-        AlphaGrayscale = 3,
-        HDRGrayscale = 4,
+        TRF_TrueColor = 0,
+        TRF_Grayscale = 1,
+        TRF_HDR = 2,
+        TRF_AlphaGrayscale = 3,
+        TRF_HDRGrayscale = 4,
     }
 }

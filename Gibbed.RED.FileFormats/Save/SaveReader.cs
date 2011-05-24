@@ -418,6 +418,11 @@ namespace Gibbed.RED.FileFormats.Save
             value = this.Stream.ReadStringEncodedUnicode();
         }
 
+        void IFileStream.SerializeValue(ref Guid value)
+        {
+            value = this.Stream.ReadValueGuid();
+        }
+
         void IFileStream.SerializeValue(ref byte[] value, int length)
         {
             value = new byte[length];
@@ -435,6 +440,11 @@ namespace Gibbed.RED.FileFormats.Save
         void IFileStream.SerializeName(ref string value)
         {
             value = this.Stream.ReadStringEncodedUnicode();
+        }
+
+        void IFileStream.SerializeTagList(ref List<string> value)
+        {
+            throw new NotSupportedException();
         }
 
         void IFileStream.SerializePointer(ref IFileObject value)

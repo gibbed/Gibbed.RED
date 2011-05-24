@@ -20,22 +20,22 @@
  *    distribution.
  */
 
-using System;
+using Gibbed.RED.FileFormats.Serializers;
 
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public class CGameplayEntity : CPeristentEntity
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
+        [PropertyName("displayName")]
+        [PropertySerializer(typeof(LocalizedStringSerializer))]
+        public uint DisplayName { get; set; }
 
-        public object Deserialize(IFileStream stream)
-        {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
-        }
+        [PropertyName("stats")]
+        [PropertyDescription("Character attributes and abilities")]
+        [PropertySerializer(typeof(PointerSerializer))]
+        public IFileObject Stats { get; set; }
+
+        // isInteractionActivator
+        // aimVector
     }
 }

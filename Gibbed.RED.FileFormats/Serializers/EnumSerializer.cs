@@ -24,8 +24,10 @@ using System;
 
 namespace Gibbed.RED.FileFormats.Serializers
 {
-    public class BoolSerializer : IPropertySerializer
+    public class EnumSerializer<TType> : IPropertySerializer
     {
+        private static readonly Type EnumType = typeof(TType);
+
         public void Serialize(IFileStream stream, object value)
         {
             throw new NotImplementedException();
@@ -33,9 +35,16 @@ namespace Gibbed.RED.FileFormats.Serializers
 
         public object Deserialize(IFileStream stream)
         {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
+            string value = null;
+            stream.SerializeName(ref value);
+
+            if (Enum.IsDefined(EnumType, value) == false)
+            {
+                throw new FormatException(string.Format("'{0}' does not contain a definition for '{1}'", EnumType, value));
+            }
+
+            return (TType)Enum
+                .Parse(EnumType, value);
         }
     }
 }

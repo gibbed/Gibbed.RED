@@ -21,21 +21,32 @@
  */
 
 using System;
+using System.Collections.Generic;
+using Gibbed.RED.FileFormats.Serializers;
 
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public class CNode : CStateMachine
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
+        [PropertyName("name")]
+        [PropertySerializer(typeof(StringSerializer))]
+        public string Name { get; set; }
 
-        public object Deserialize(IFileStream stream)
+        [PropertyName("tags")]
+        [PropertySerializer(typeof(TagListSerializer))]
+        public List<string> Tags { get; set; }
+        
+        // transform
+        // transformParent
+
+        [PropertyName("guid")]
+        [PropertySerializer(typeof(GuidSerializer))]
+        public Guid Guid { get; set; }
+
+        public override void Serialize(IFileStream stream)
         {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
+            base.Serialize(stream);
+            throw new NotImplementedException();
         }
     }
 }

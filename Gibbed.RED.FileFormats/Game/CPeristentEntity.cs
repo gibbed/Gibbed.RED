@@ -20,22 +20,11 @@
  *    distribution.
  */
 
-using System;
-
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public class CPeristentEntity : CEntity
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object Deserialize(IFileStream stream)
-        {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
-        }
+        // idTag
+        //   A PESEL number for the gamplay-relevant entity.
     }
 }

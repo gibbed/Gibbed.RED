@@ -22,20 +22,14 @@
 
 using System;
 
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public class CStateMachine : CObject
     {
-        public void Serialize(IFileStream stream, object value)
+        public override void Serialize(IFileStream stream)
         {
+            base.Serialize(stream);
             throw new NotImplementedException();
-        }
-
-        public object Deserialize(IFileStream stream)
-        {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
         }
     }
 }

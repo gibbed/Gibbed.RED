@@ -21,6 +21,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Gibbed.Helpers;
 
@@ -140,6 +141,11 @@ namespace Gibbed.RED.FileFormats.Resource
             value = this.Stream.ReadStringEncodedUnicode();
         }
 
+        void IFileStream.SerializeValue(ref Guid value)
+        {
+            value = this.Stream.ReadValueGuid();
+        }
+
         void IFileStream.SerializeValue(ref byte[] value, int length)
         {
             value = new byte[length];
@@ -169,6 +175,20 @@ namespace Gibbed.RED.FileFormats.Resource
             }
 
             value = this.Info.Names[index - 1];
+        }
+
+        void IFileStream.SerializeTagList(ref List<string> value)
+        {
+            var count = this.Stream.ReadValueEncodedS32();
+
+            var list = new List<string>();
+            for (int i = 0; i < count; i++)
+            {
+                string item = null;
+                ((IFileStream)this).SerializeName(ref item);
+                list.Add(item);
+            }
+            value = list;
         }
 
         void IFileStream.SerializePointer(ref IFileObject value)

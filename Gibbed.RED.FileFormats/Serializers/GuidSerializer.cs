@@ -24,7 +24,7 @@ using System;
 
 namespace Gibbed.RED.FileFormats.Serializers
 {
-    public class BoolSerializer : IPropertySerializer
+    public class GuidSerializer : IPropertySerializer
     {
         public void Serialize(IFileStream stream, object value)
         {
@@ -33,7 +33,7 @@ namespace Gibbed.RED.FileFormats.Serializers
 
         public object Deserialize(IFileStream stream)
         {
-            bool value = false;
+            Guid value = Guid.Empty;
             stream.SerializeValue(ref value);
             return value;
         }

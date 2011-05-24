@@ -24,12 +24,12 @@ namespace Gibbed.RED.FileFormats.Game
 {
     public enum ETextureCompression
     {
-        None = 0,
-        DXTNoAlpha = 1,
-        DXTAlpha = 2,
-        RGBE = 3,
-        Normals = 4,
-        NormalsHigh = 5,
-        DXTAlphaLinear = 7,
+        TCM_None = 0,
+        TCM_DXTNoAlpha = 1,
+        TCM_DXTAlpha = 2,
+        TCM_RGBE = 3,
+        TCM_Normals = 4,
+        TCM_NormalsHigh = 5,
+        TCM_DXTAlphaLinear = 7,
     }
 }

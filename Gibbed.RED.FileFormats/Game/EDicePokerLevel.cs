@@ -20,22 +20,13 @@
  *    distribution.
  */
 
-using System;
-
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public enum EDicePokerLevel
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object Deserialize(IFileStream stream)
-        {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
-        }
+        Poker_Master = 0,
+        Poker_Hard = 1,
+        Poker_Normal = 2,
+        Poker_Easy = 3,
     }
 }

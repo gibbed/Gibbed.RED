@@ -20,22 +20,12 @@
  *    distribution.
  */
 
-using System;
-
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public enum EAIAttitude
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object Deserialize(IFileStream stream)
-        {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
-        }
+        Neutral = 0,
+        Friendly = 1,
+        Hostile = 2,
     }
 }

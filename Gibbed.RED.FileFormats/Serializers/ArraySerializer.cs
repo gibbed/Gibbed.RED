@@ -22,9 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Gibbed.Helpers;
-using Gibbed.RED.FileFormats.Resource;
 
 namespace Gibbed.RED.FileFormats.Serializers
 {

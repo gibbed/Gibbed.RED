@@ -21,21 +21,25 @@
  */
 
 using System;
+using Gibbed.RED.FileFormats.Serializers;
 
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    [ResourceHandler("CNewNPC")]
+    public class CNewNPC : CActor
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
+        [PropertyName("attitudeToPlayer")]
+        [PropertySerializer(typeof(EnumSerializer<EAIAttitude>))]
+        public EAIAttitude AttitudeToPlayer { get; set; }
 
-        public object Deserialize(IFileStream stream)
+        [PropertyName("diceDifficultyLevel")]
+        [PropertySerializer(typeof(EnumSerializer<EDicePokerLevel>))]
+        public EDicePokerLevel DiceDifficultyLevel { get; set; }
+
+        public override void Serialize(IFileStream stream)
         {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
+            base.Serialize(stream);
+            throw new NotImplementedException();
         }
     }
 }

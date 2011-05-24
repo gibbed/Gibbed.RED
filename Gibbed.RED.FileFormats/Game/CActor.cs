@@ -21,21 +21,20 @@
  */
 
 using System;
+using Gibbed.RED.FileFormats.Serializers;
 
-namespace Gibbed.RED.FileFormats.Serializers
+namespace Gibbed.RED.FileFormats.Game
 {
-    public class BoolSerializer : IPropertySerializer
+    public class CActor : CGameplayEntity
     {
-        public void Serialize(IFileStream stream, object value)
-        {
-            throw new NotImplementedException();
-        }
+        [PropertyName("firstDynamicComponent")]
+        [PropertySerializer(typeof(UintSerializer))]
+        public uint FirstDynamicComponent { get; set; }
 
-        public object Deserialize(IFileStream stream)
+        public override void Serialize(IFileStream stream)
         {
-            bool value = false;
-            stream.SerializeValue(ref value);
-            return value;
+            base.Serialize(stream);
+            throw new NotImplementedException();
         }
     }
 }

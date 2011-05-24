@@ -21,7 +21,6 @@
  */
 
 using System;
-using System.IO;
 
 namespace Gibbed.RED.FileFormats.Serializers
 {
