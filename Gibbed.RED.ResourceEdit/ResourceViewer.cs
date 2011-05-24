@@ -124,26 +124,29 @@ namespace Gibbed.RED.ResourceEdit
                 return;
             }
 
-            if (obj.TypeName == "CBitmapTexture")
+            if (obj.Data is FileFormats.Game.CBitmapTexture)
             {
                 var viewer = new TextureViewer()
                 {
                     MdiParent = this.MdiParent,
                 };
-                viewer.LoadFile(obj);
+                viewer.LoadResource((FileFormats.Game.CBitmapTexture)obj.Data);
                 viewer.Show();
             }
-            else if (obj.TypeName == "CMesh")
+            else if (obj.Data is FileFormats.Resource.Dummy)
             {
-                var mesh = new FileFormats.Game.CMesh();
-                //obj.Data.Position = 0;
-                //mesh.Deserialize(this.FileData, obj.Data);
+                MessageBox.Show(
+                    "Unsupported object type.",
+                    "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (obj.TypeName == "CEntityTemplate")
+            else
             {
-                var template = new FileFormats.Game.CEntityTemplate();
-                //obj.Data.Position = 0;
-                //template.Deserialize(this.FileData, obj.Data);
+                MessageBox.Show(
+                    string.Format("Unimplemented object type ({0}).",
+                        obj.Data.GetType().Name),
+                    "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

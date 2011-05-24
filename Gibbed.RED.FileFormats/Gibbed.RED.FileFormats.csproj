@@ -43,6 +43,7 @@
     <Compile Include="CompiledScriptsFile.cs" />
     <Compile Include="Game\Box.cs" />
     <Compile Include="Game\CBitmapTexture.cs" />
+    <Compile Include="Game\CCharacterStats.cs" />
     <Compile Include="Game\CColorShift.cs" />
     <Compile Include="Game\CComponentReference.cs" />
     <Compile Include="Game\CEntityAppearance.cs" />

@@ -25,34 +25,11 @@ using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game
 {
-    public class CEntityAppearance : TTypedClass
+    [ResourceHandler("CCharacterStats")]
+    public class CCharacterStats : CObject
     {
-        [PropertyName("name")]
-        [PropertySerializer(typeof(CNameSerializer))]
-        public string Name { get; set; }
-
-        [PropertyName("parts")]
+        [PropertyName("abilities")]
         [PropertySerializer(typeof(ArraySerializer<string, CNameSerializer>))]
-        public List<string> Parts { get; set; }
-
-        [PropertyName("colorVariants")]
-        [PropertySerializer(typeof(ArraySerializer<CEntityColorVariant, StructureSerializer<CEntityColorVariant>>))]
-        public List<CEntityColorVariant> ColorVariants { get; set; }
-
-        [PropertyName("useVertexCollapse")]
-        [PropertySerializer(typeof(BoolSerializer))]
-        public bool UseVertexCollapse { get; set; }
-
-        [PropertyName("headName")]
-        [PropertySerializer(typeof(CNameSerializer))]
-        public string HeadName { get; set; }
-
-        [PropertyName("wasIncluded")]
-        [PropertySerializer(typeof(BoolSerializer))]
-        public bool WasIncluded { get; set; }
-
-        [PropertyName("voicetag")]
-        [PropertySerializer(typeof(CNameSerializer))]
-        public string Voicetag { get; set; }
+        public List<string> Abilities { get; set; }
     }
 }

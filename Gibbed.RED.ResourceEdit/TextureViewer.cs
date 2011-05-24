@@ -30,7 +30,6 @@ namespace Gibbed.RED.ResourceEdit
 {
     public partial class TextureViewer : Form
     {
-        public FileFormats.Resource.ObjectInfo Object;
         public FileFormats.Game.CBitmapTexture Texture;
 
         public TextureViewer()
@@ -39,14 +38,8 @@ namespace Gibbed.RED.ResourceEdit
             this.hintLabel.Text = "";
         }
 
-        public void LoadFile(
-            /*FileFormats.Resource.IResourceFile resource,*/
-            FileFormats.Resource.ObjectInfo obj)
+        public void LoadResource(FileFormats.Game.CBitmapTexture texture)
         {
-            var texture = new FileFormats.Game.CBitmapTexture();
-            //obj.Data.Position = 0;
-            //texture.Deserialize(resource, obj.Data);
-
             this.hintLabel.Text = string.Format(
                 "{0}, {1} : {2}x{3}",
                 texture.Format,
@@ -54,7 +47,6 @@ namespace Gibbed.RED.ResourceEdit
                 texture.Width, texture.Height);
             //this.Text += ": " + entry.Description;
 
-            this.Object = obj;
             this.Texture = texture;
 
             this.UpdatePreview(true);
