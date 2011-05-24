@@ -21,7 +21,6 @@
  */
 
 using System.Collections.Generic;
-using Gibbed.RED.FileFormats.Resource;
 using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game

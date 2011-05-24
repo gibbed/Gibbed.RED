@@ -20,11 +20,6 @@
  *    distribution.
  */
 
-using System;
-using System.IO;
-using Gibbed.Helpers;
-using Gibbed.RED.FileFormats.Resource;
-
 namespace Gibbed.RED.FileFormats.Game
 {
     public class CObject : IFileObject

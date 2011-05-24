@@ -21,7 +21,6 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 
 namespace Gibbed.RED.FileFormats.Resource
 {
