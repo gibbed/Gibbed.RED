@@ -158,10 +158,10 @@ namespace Gibbed.RED.Unpack
                             left -= read;
                         }
                     }
+
+                    File.SetLastWriteTime(entryPath, entry.TimeStamp);
                 }
             }
         }
-
-        
     }
 }

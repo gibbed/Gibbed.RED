@@ -33,6 +33,7 @@ namespace Gibbed.RED.FileFormats
         public uint Version;
         public List<Package.Entry> Entries
             = new List<Package.Entry>();
+
         public ulong EntriesHash
         {
             get
@@ -52,7 +53,7 @@ namespace Gibbed.RED.FileFormats
                         hash *= 0x00000100000001B3UL;
                     }
 
-                    hash ^= (ulong)entry.TimeStamp.ToFileTimeUtc();
+                    hash ^= (ulong)entry.TimeStamp.ToFileTime();
                     hash *= 0x00000100000001B3UL;
                     hash ^= (ulong)entry.UncompressedSize;
                     hash *= 0x00000100000001B3UL;
@@ -62,6 +63,32 @@ namespace Gibbed.RED.FileFormats
                     hash *= 0x00000100000001B3UL;
                 }
                 return hash;
+            }
+        }
+
+        public const int HeaderSize = 32;
+
+        public void Serialize(Stream output, long entryTableOffset)
+        {
+            output.Seek(0, SeekOrigin.Begin);
+            output.WriteValueU32(0x50495A44); // DZIP
+            output.WriteValueU32(2);
+            output.WriteValueS32(this.Entries.Count);
+            output.WriteValueU32(0x64626267);
+            output.WriteValueS64(entryTableOffset);
+            output.WriteValueU64(this.EntriesHash);
+
+            output.Seek(entryTableOffset, SeekOrigin.Begin);
+            foreach (var entry in this.Entries)
+            {
+                output.WriteValueU16((ushort)(entry.Name.Length + 1));
+                output.WriteString(entry.Name, Encoding.ASCII);
+                output.WriteValueU8(0);
+                
+                output.WriteValueS64(entry.TimeStamp.ToFileTime());
+                output.WriteValueS64(entry.UncompressedSize);
+                output.WriteValueS64(entry.Offset);
+                output.WriteValueS64(entry.CompressedSize);
             }
         }
 
@@ -137,7 +164,7 @@ namespace Gibbed.RED.FileFormats
                 }
                 
                 //entry.TimeStamp = input.ReadValueS64();
-                entry.TimeStamp = DateTime.FromFileTimeUtc(
+                entry.TimeStamp = DateTime.FromFileTime(
                     input.ReadValueS64());
                 entry.UncompressedSize = input.ReadValueS64();
                 entry.Offset = input.ReadValueS64();

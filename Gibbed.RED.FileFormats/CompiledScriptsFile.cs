@@ -52,7 +52,7 @@ namespace Gibbed.RED.FileFormats
             
             // now the script data
             var unk1 = input.ReadStringEncodedUnicode();
-            var timeStamp = DateTime.FromFileTimeUtc(input.ReadValueS64());
+            var timeStamp = DateTime.FromFileTime(input.ReadValueS64());
             var unk3 = input.ReadStringEncodedUnicode();
 
             var typeDefCount = input.ReadValueU32();
