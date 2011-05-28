@@ -101,6 +101,7 @@ namespace Gibbed.RED.Strings
                     var settings = new XmlWriterSettings()
                     {
                         Indent = true,
+                        CheckCharacters = false,
                     };
 
                     using (var output = XmlWriter.Create(outputPath, settings))
