@@ -105,7 +105,7 @@ namespace Gibbed.RED.FileFormats
                     }
                     else
                     {
-                        throw new NotImplementedException();
+                        throw new NotImplementedException("string obfuscation for old strings files is untested");
 
                         // untested
                         buffer[j + 0] ^= (byte)((stringKey >> 0) & 0xFF);
@@ -197,6 +197,8 @@ namespace Gibbed.RED.FileFormats
                     }
                     else
                     {
+                        throw new NotImplementedException("string obfuscation for old strings files is untested");
+
                         // untested
                         buffer[j + 0] ^= (byte)((stringKey >> 0) & 0xFF);
                         buffer[j + 1] ^= (byte)((stringKey >> 8) & 0xFF);
@@ -225,7 +227,7 @@ namespace Gibbed.RED.FileFormats
 
             if (this.Version >= 114 && fileStringsHash != actualStringsHash)
             {
-                throw new FormatException();
+                throw new FormatException("hash for strings does not match");
             }
         }
 
