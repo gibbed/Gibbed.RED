@@ -27,7 +27,8 @@ namespace Gibbed.RED.FileFormats.Script
     public class FunctionDefinition
     {
         public string Name;
-        public int ReturnValueTypeId;
+        public TypeDefinition ReturnValue;
         public List<ArgumentDefinition> Arguments;
+
     }
 }

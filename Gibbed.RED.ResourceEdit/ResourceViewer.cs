@@ -140,6 +140,16 @@ namespace Gibbed.RED.ResourceEdit
                     "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            else if (obj.Data is FileFormats.Game.CObject ||
+                obj.Data is FileFormats.Game.TTypedClass)
+            {
+                var viewer = new ObjectViewer()
+                {
+                    MdiParent = this.MdiParent,
+                };
+                viewer.LoadResource(obj.Data);
+                viewer.Show();
+            }
             else
             {
                 MessageBox.Show(

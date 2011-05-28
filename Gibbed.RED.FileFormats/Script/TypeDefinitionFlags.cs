@@ -20,19 +20,16 @@
  *    distribution.
  */
 
+using System;
+
 namespace Gibbed.RED.FileFormats.Script
 {
-    internal class RawTypeDefinition
+    [Flags]
+    public enum TypeDefinitionFlags : int
     {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
+        None = 0,
+        Scripted = 1 << 0,
+        Unknown1 = 1 << 1,
+        Unknown2 = 1 << 2,
     }
 }

@@ -20,19 +20,22 @@
  *    distribution.
  */
 
+using System.Collections.Generic;
+
 namespace Gibbed.RED.FileFormats.Script
 {
-    internal class RawTypeDefinition
+    public class ClassDefinition : TypeDefinition
     {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
+        public ClassDefinition Super = null;
+        public Dictionary<string, ClassDefinition> States
+            = new Dictionary<string, ClassDefinition>();
+        public List<string> NativeProperties
+            = new List<string>();
+        public Dictionary<string, PropertyDefinition> Properties
+            = new Dictionary<string, PropertyDefinition>();
+        public Dictionary<string, PropertyDefault> Defaults
+            = new Dictionary<string, PropertyDefault>();
+        public Dictionary<string, FunctionDefinition> Functions
+            = new Dictionary<string, FunctionDefinition>();
     }
 }

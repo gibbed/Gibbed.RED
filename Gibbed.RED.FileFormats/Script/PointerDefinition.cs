@@ -22,17 +22,7 @@
 
 namespace Gibbed.RED.FileFormats.Script
 {
-    internal class RawTypeDefinition
+    public class PointerDefinition : TypeDefinition
     {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
     }
 }

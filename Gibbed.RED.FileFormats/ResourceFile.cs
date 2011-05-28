@@ -74,7 +74,7 @@ namespace Gibbed.RED.FileFormats
                 input.Seek(nameDataOffset, SeekOrigin.Begin);
                 for (uint i = 0; i < nameCount; i++)
                 {
-                    info.Names[i] = input.ReadStringEncodedUnicode();
+                    info.Names[i] = input.ReadEncodedString();
                 }
             }
 
@@ -86,7 +86,7 @@ namespace Gibbed.RED.FileFormats
                 for (uint i = 0; i < linkCount; i++)
                 {
                     var link = new Resource.LinkInfo();
-                    link.FileName = input.ReadStringEncoded();
+                    link.FileName = input.ReadEncodedStringW();
                     link.Unknown1 = input.ReadValueU16();
                     link.Unknown2 = input.ReadValueU16();
                     info.Links[i] = link;
@@ -100,7 +100,7 @@ namespace Gibbed.RED.FileFormats
 
                 for (uint i = 1; i < dependencyCount; i++)
                 {
-                    this.Dependencies.Add(input.ReadStringEncodedUnicode());
+                    this.Dependencies.Add(input.ReadEncodedString());
                 }
             }
 
@@ -132,7 +132,7 @@ namespace Gibbed.RED.FileFormats
 
                     obj.Flags = input.ReadValueU32();
                     obj.Unknown5 = input.ReadValueU32();
-                    obj.Link = this.Version < 102 ? null : input.ReadStringEncodedUnicode();
+                    obj.Link = this.Version < 102 ? null : input.ReadEncodedString();
 
                     if (TypeCache.Supports(obj.TypeName) == false)
                     {

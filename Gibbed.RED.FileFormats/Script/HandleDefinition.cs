@@ -20,15 +20,9 @@
  *    distribution.
  */
 
-using System;
-
 namespace Gibbed.RED.FileFormats.Script
 {
-    [Flags]
-    internal enum RawTypeDefinitionFlags : int
+    public class HandleDefinition : TypeDefinition
     {
-        None = 0,
-        Unknown0 = 1 << 0,
-        Unknown2 = 1 << 2,
     }
 }

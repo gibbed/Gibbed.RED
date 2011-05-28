@@ -20,19 +20,28 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Script
-{
-    internal class RawTypeDefinition
-    {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
+using System.Collections.Generic;
+using Gibbed.RED.FileFormats.Serializers;
 
-        public override string ToString()
-        {
-            return this.Name;
-        }
+namespace Gibbed.RED.FileFormats.Game
+{
+    [ResourceHandler("CParticleSystem")]
+    public class CParticleSystem : CResource
+    {
+        [PropertyName("emitters")]
+        [PropertySerializer(typeof(ArraySerializer<PointerSerializer>))]
+        public List<object> Emitters { get; set; }
+
+        [PropertyName("fixedBoundingBox")]
+        [PropertySerializer(typeof(ClassSerializer<Box>))]
+        public Box FixedBoundingBox { get; set; }
+
+        [PropertyName("previewShowGrid")]
+        [PropertySerializer(typeof(BoolSerializer))]
+        public bool PreviewShowGrid { get; set; }
+
+        [PropertyName("autoSleepIfNotVisible")]
+        [PropertySerializer(typeof(BoolSerializer))]
+        public bool AutoSleepIfNotVisible { get; set; }
     }
 }

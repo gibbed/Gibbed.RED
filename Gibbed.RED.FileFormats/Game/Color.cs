@@ -20,19 +20,32 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Script
+using Gibbed.RED.FileFormats.Serializers;
+
+namespace Gibbed.RED.FileFormats.Game
 {
-    internal class RawTypeDefinition
+    public class Color : TTypedClass
     {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
+        [PropertyName("Red")]
+        [PropertySerializer(typeof(Uint8Serializer))]
+        public byte Red { get; set; }
+
+        [PropertyName("Green")]
+        [PropertySerializer(typeof(Uint8Serializer))]
+        public byte Green { get; set; }
+
+        [PropertyName("Blue")]
+        [PropertySerializer(typeof(Uint8Serializer))]
+        public byte Blue { get; set; }
+
+        [PropertyName("Alpha")]
+        [PropertySerializer(typeof(Uint8Serializer))]
+        public byte Alpha { get; set; }
 
         public override string ToString()
         {
-            return this.Name;
+            return string.Format("#{0:X2}{1:X2}{2:X2}:{3:X2}",
+                this.Red, this.Green, this.Blue, this.Alpha);
         }
     }
 }

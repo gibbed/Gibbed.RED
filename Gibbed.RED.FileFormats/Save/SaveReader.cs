@@ -73,13 +73,13 @@ namespace Gibbed.RED.FileFormats.Save
                 throw new FormatException("not a value");
             }
 
-            var actualName = this.Stream.ReadStringEncodedUnicode();
+            var actualName = this.Stream.ReadEncodedString();
             if (actualName != name)
             {
                 throw new FormatException(string.Format("read wrong value (got '{0}', wanted '{1}'", actualName, name));
             }
 
-            var actualType = this.Stream.ReadStringEncodedUnicode();
+            var actualType = this.Stream.ReadEncodedString();
             if (actualName != name)
             {
                 throw new FormatException(string.Format("read wrong type for value {0} (got '{1}', wanted '{2}'", name, actualType, type));
@@ -101,7 +101,7 @@ namespace Gibbed.RED.FileFormats.Save
             using (var input = new MemoryStream(this.ReadValue(name, type)))
             {
                 count = input.ReadValueS32();
-                var actualElementType = input.ReadStringEncodedUnicode();
+                var actualElementType = input.ReadEncodedString();
                 if (actualElementType != elementType)
                 {
                     throw new FormatException(string.Format("read wrong element type for value {0} (got '{1}', wanted '{2}'", name, actualElementType, elementType));
@@ -237,7 +237,7 @@ namespace Gibbed.RED.FileFormats.Save
             }
             using (var input = new MemoryStream(data))
             {
-                value = input.ReadStringEncodedUnicode();
+                value = input.ReadEncodedString();
             }
         }
 
@@ -272,7 +272,7 @@ namespace Gibbed.RED.FileFormats.Save
                 throw new FormatException();
             }
 
-            var actualName = this.Stream.ReadStringEncodedUnicode();
+            var actualName = this.Stream.ReadEncodedString();
             if (name != actualName)
             {
                 throw new FormatException();
@@ -307,7 +307,7 @@ namespace Gibbed.RED.FileFormats.Save
                 throw new FormatException();
             }
 
-            var actualName = this.Stream.ReadStringEncodedUnicode();
+            var actualName = this.Stream.ReadEncodedString();
             if (name != actualName)
             {
                 throw new FormatException();
@@ -415,7 +415,7 @@ namespace Gibbed.RED.FileFormats.Save
 
         void IFileStream.SerializeValue(ref string value)
         {
-            value = this.Stream.ReadStringEncodedUnicode();
+            value = this.Stream.ReadEncodedString();
         }
 
         void IFileStream.SerializeValue(ref Guid value)
@@ -444,7 +444,7 @@ namespace Gibbed.RED.FileFormats.Save
 
         void IFileStream.SerializeName(ref string value)
         {
-            value = this.Stream.ReadStringEncodedUnicode();
+            value = this.Stream.ReadEncodedString();
         }
 
         void IFileStream.SerializeTagList(ref List<string> value)

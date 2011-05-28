@@ -20,19 +20,14 @@
  *    distribution.
  */
 
+using System.Collections.Generic;
+
 namespace Gibbed.RED.FileFormats.Script
 {
-    internal class RawTypeDefinition
+    public class EnumDefinition : TypeDefinition
     {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
+        public int Unknown0;
+        public Dictionary<string, int> Constants
+            = new Dictionary<string, int>();
     }
 }

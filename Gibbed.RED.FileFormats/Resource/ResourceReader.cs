@@ -138,7 +138,7 @@ namespace Gibbed.RED.FileFormats.Resource
 
         void IFileStream.SerializeValue(ref string value)
         {
-            value = this.Stream.ReadStringEncodedUnicode();
+            value = this.Stream.ReadEncodedString();
         }
 
         void IFileStream.SerializeValue(ref Guid value)

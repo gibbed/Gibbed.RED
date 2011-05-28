@@ -27,10 +27,10 @@ namespace Gibbed.RED.FileFormats.Script
         Simple = 0,
         Enum = 1,
         Class = 2,
-        Array = 3,
-        Unknown4 = 4,
-        Object = 5,
-        Unknown6 = 6,
-        State = 7,
+        Array = 3, // @
+        Pointer = 4, // *
+        Handle = 5, // #
+        SoftHandle = 6, // ~
+        BitField = 7,
     }
 }

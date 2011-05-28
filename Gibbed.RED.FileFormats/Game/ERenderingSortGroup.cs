@@ -20,19 +20,27 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Script
+namespace Gibbed.RED.FileFormats.Game
 {
-    internal class RawTypeDefinition
+    public enum ERenderingSortGroup
     {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
+        RSG_DebugUnlit = 0,
+        RSG_Unlit = 1,
+        RSG_LitOpaque = 2,
+        RSG_LitOpaqueWithEmissive = 3,
+        RSG_DecalModulativeColor = 4,
+        RSG_DecalBlendedColor = 5,
+        RSG_DecalBlendedNormalsColor = 6,
+        RSG_DecalBlendedNormals = 7,
+        RSG_Sprites = 8,
+        RSG_RefractiveBackground = 9,
+        RSG_RefractiveBackgroundDepthWrite = 10,
+        RSG_Transparent = 11,
+        RSG_DebugTransparent = 12,
+        RSG_DebugOverlay = 13,
+        RSG_2D = 14,
+        RSG_Prepare = 15,
+        RSG_Skin = 16,
+        RSG_Max = 17,
     }
 }

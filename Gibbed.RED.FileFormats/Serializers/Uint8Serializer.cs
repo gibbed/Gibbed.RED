@@ -20,19 +20,22 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Script
-{
-    internal class RawTypeDefinition
-    {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
+using System;
 
-        public override string ToString()
+namespace Gibbed.RED.FileFormats.Serializers
+{
+    public class Uint8Serializer : IPropertySerializer
+    {
+        public void Serialize(IFileStream stream, object value)
         {
-            return this.Name;
+            throw new NotImplementedException();
+        }
+
+        public object Deserialize(IFileStream stream)
+        {
+            byte value = 0;
+            stream.SerializeValue(ref value);
+            return value;
         }
     }
 }

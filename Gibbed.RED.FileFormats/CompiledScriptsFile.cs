@@ -21,16 +21,17 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Gibbed.Helpers;
 
 namespace Gibbed.RED.FileFormats
 {
     public class CompiledScriptsFile
     {
+        public string Unknown0;
+        public DateTime TimeStamp;
+        public string Unknown2;
+
         public void Deserialize(Stream input)
         {
             input.Seek(-4, SeekOrigin.End);
@@ -43,7 +44,7 @@ namespace Gibbed.RED.FileFormats
             for (int i = 0; i < strings.Length; i++)
             {
                 var stringEntry = new Script.RawString();
-                stringEntry.Value = input.ReadStringEncodedUnicode();
+                stringEntry.Value = input.ReadEncodedString();
                 stringEntry.IsName = input.ReadValueB8();
                 strings[i] = stringEntry;
             }
@@ -51,33 +52,193 @@ namespace Gibbed.RED.FileFormats
             input.Seek(0, SeekOrigin.Begin);
             
             // now the script data
-            var unk1 = input.ReadStringEncodedUnicode();
-            var timeStamp = DateTime.FromFileTime(input.ReadValueS64());
-            var unk3 = input.ReadStringEncodedUnicode();
+            this.Unknown0 = input.ReadEncodedString();
+            this.TimeStamp = DateTime.FromFileTime(input.ReadValueS64());
+            this.Unknown2 = input.ReadEncodedString();
 
             var typeDefCount = input.ReadValueU32();
             var funcDefCount = input.ReadValueU32();
 
             var rawTypeDefs = new Script.RawTypeDefinition[typeDefCount];
+            var typeDefs = new Script.TypeDefinition[typeDefCount];
+
             for (uint i = 0; i < typeDefCount; i++)
             {
                 var rawTypeDef = new Script.RawTypeDefinition();
                 rawTypeDef.Name = strings[input.ReadValueEncodedS32()].Value;
                 rawTypeDef.Type = (Script.NativeType)input.ReadValueEncodedS32();
-                rawTypeDef.UnknownCount = input.ReadValueEncodedS32();
-                rawTypeDef.PropertyCount = input.ReadValueEncodedS32();
-                rawTypeDef.Flags = (Script.RawTypeDefinitionFlags)input.ReadValueEncodedS32();
+                rawTypeDef.NativePropertyCount = input.ReadValueEncodedS32();
+                rawTypeDef.ScriptedPropertyCount = input.ReadValueEncodedS32();
+                rawTypeDef.Flags = (Script.TypeDefinitionFlags)input.ReadValueEncodedS32();
+
+                Script.TypeDefinition typeDef = null;
+
+                switch (rawTypeDef.Type)
+                {
+                    case Script.NativeType.Simple:
+                    {
+                        if (rawTypeDef.NativePropertyCount > 0 ||
+                            rawTypeDef.ScriptedPropertyCount > 0)
+                        {
+                            throw new FormatException();
+                        }
+
+                        typeDef = new Script.SimpleDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    case Script.NativeType.Enum:
+                    {
+                        if (rawTypeDef.NativePropertyCount > 0 ||
+                            rawTypeDef.ScriptedPropertyCount > 0)
+                        {
+                            throw new FormatException();
+                        }
+
+                        typeDef = new Script.EnumDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    case Script.NativeType.Class:
+                    {
+                        typeDef = new Script.ClassDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    case Script.NativeType.Array:
+                    {
+                        if (rawTypeDef.NativePropertyCount > 0 ||
+                            rawTypeDef.ScriptedPropertyCount > 0)
+                        {
+                            throw new FormatException();
+                        }
+
+                        typeDef = new Script.ArrayDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    case Script.NativeType.Pointer:
+                    {
+                        if (rawTypeDef.NativePropertyCount > 0 ||
+                            rawTypeDef.ScriptedPropertyCount > 0)
+                        {
+                            throw new FormatException();
+                        }
+
+                        typeDef = new Script.PointerDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    case Script.NativeType.Handle:
+                    {
+                        if (rawTypeDef.NativePropertyCount > 0 ||
+                            rawTypeDef.ScriptedPropertyCount > 0)
+                        {
+                            throw new FormatException();
+                        }
+
+                        typeDef = new Script.HandleDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    case Script.NativeType.SoftHandle:
+                    {
+                        if (rawTypeDef.NativePropertyCount > 0 ||
+                            rawTypeDef.ScriptedPropertyCount > 0)
+                        {
+                            throw new FormatException();
+                        }
+
+                        typeDef = new Script.SoftHandleDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    case Script.NativeType.BitField:
+                    {
+                        if (rawTypeDef.NativePropertyCount > 0 ||
+                            rawTypeDef.ScriptedPropertyCount > 0)
+                        {
+                            throw new FormatException();
+                        }
+
+                        typeDef = new Script.BitFieldDefinition()
+                        {
+                            Name = rawTypeDef.Name,
+                            Flags = rawTypeDef.Flags,
+                        };
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        throw new FormatException();
+                    }
+                }
+
                 rawTypeDefs[i] = rawTypeDef;
+
+                if (typeDef == null)
+                {
+                    throw new FormatException();
+                }
+
+                typeDefs[i] = typeDef;
             }
 
             var rawFuncDefs = new Script.RawFunctionDefinition[funcDefCount];
+            var funcDefs = new Script.FunctionDefinition[funcDefCount];
+
             for (uint i = 0; i < funcDefCount; i++)
             {
                 var rawFuncDef = new Script.RawFunctionDefinition();
                 rawFuncDef.Name = strings[input.ReadValueEncodedS32()].Value;
                 rawFuncDef.DefinedOnId = input.ReadValueEncodedS32();
                 rawFuncDef.Flags = input.ReadValueEncodedS32();
+
+                var funcDef = new Script.FunctionDefinition();
+
+                if (rawFuncDef.DefinedOnId == 0)
+                {
+                }
+
                 rawFuncDefs[i] = rawFuncDef;
+                funcDefs[i] = funcDef;
             }
 
             // parse enums
@@ -85,8 +246,12 @@ namespace Gibbed.RED.FileFormats
             {
                 var rawTypeDef = rawTypeDefs[i];
 
-                if (rawTypeDef.Type != Script.NativeType.Enum ||
-                    (rawTypeDef.Flags & Script.RawTypeDefinitionFlags.Unknown0) == 0)
+                if (rawTypeDef.Type != Script.NativeType.Enum)
+                {
+                    continue;
+                }
+                else if ((rawTypeDef.Flags &
+                    Script.TypeDefinitionFlags.Scripted) == 0)
                 {
                     continue;
                 }
@@ -103,13 +268,16 @@ namespace Gibbed.RED.FileFormats
                     throw new FormatException();
                 }
 
-                var unk2_2 = input.ReadValueEncodedS32();
-
+                var typeDef = (Script.EnumDefinition)typeDefs[i];
+                typeDef.Unknown0 = input.ReadValueEncodedS32();
+                
                 var constantCount = input.ReadValueEncodedS32();
+                typeDef.Constants.Clear();
                 for (int j = 0; j < constantCount; j++)
                 {
                     var constantName = strings[input.ReadValueEncodedS32()].Value;
                     var constantValue = input.ReadValueEncodedS32();
+                    typeDef.Constants.Add(constantName, constantValue);
                 }
             }
 
@@ -118,8 +286,12 @@ namespace Gibbed.RED.FileFormats
             {
                 var rawTypeDef = rawTypeDefs[i];
 
-                if (rawTypeDef.Type != Script.NativeType.Class ||
-                    (rawTypeDef.Flags & Script.RawTypeDefinitionFlags.Unknown0) == 0)
+                if (rawTypeDef.Type != Script.NativeType.Class)
+                {
+                    continue;
+                }
+                else if ((rawTypeDef.Flags &
+                    Script.TypeDefinitionFlags.Scripted) == 0)
                 {
                     continue;
                 }
@@ -136,30 +308,48 @@ namespace Gibbed.RED.FileFormats
                     throw new FormatException();
                 }
 
+                var typeDef = (Script.ClassDefinition)typeDefs[i];
+
                 var isExtending = input.ReadValueEncodedS32();
                 if (isExtending != 0)
                 {
-                    var extendedTypeId = input.ReadValueEncodedS32();
+                    var superTypeId = input.ReadValueEncodedS32();
+                    var superDef = (Script.ClassDefinition)typeDefs[superTypeId];
+                    typeDef.Super = superDef;
                 }
 
-                var unk2_4 = input.ReadValueEncodedS32();
-                for (int j = 0; j < unk2_4; j++)
+                var stateCount = input.ReadValueEncodedS32();
+                typeDef.States.Clear();
+                for (int j = 0; j < stateCount; j++)
                 {
-                    var unk2_9 = input.ReadValueEncodedS32();
-                    var unk2_10 = input.ReadValueEncodedS32();
+                    var stateName = strings[input.ReadValueEncodedS32()].Value;
+                    var stateTypeId = input.ReadValueEncodedS32();
+                    var stateDef = (Script.ClassDefinition)typeDefs[stateTypeId];
+                    typeDef.States.Add(stateName, stateDef);
                 }
 
-                for (int j = 0; j < rawTypeDef.UnknownCount; j++)
+                typeDef.NativeProperties.Clear();
+                for (int j = 0; j < rawTypeDef.NativePropertyCount; j++)
                 {
-                    // string index?
-                    var unk2_8 = strings[input.ReadValueEncodedS32()];
+                    var nativePropertyName = strings[input.ReadValueEncodedS32()].Value;
+                    typeDef.NativeProperties.Add(nativePropertyName);
                 }
 
-                for (int j = 0; j < rawTypeDef.PropertyCount; j++)
+                typeDef.Properties.Clear();
+                for (int j = 0; j < rawTypeDef.ScriptedPropertyCount; j++)
                 {
                     var propTypeId = input.ReadValueEncodedS32();
-                    var propName = strings[input.ReadValueEncodedS32()];
+                    var propName = strings[input.ReadValueEncodedS32()].Value;
                     var propFlags = input.ReadValueEncodedS32();
+
+                    var property = new Script.PropertyDefinition()
+                    {
+                        Flags = propFlags,
+                        TypeDefinition = typeDefs[propTypeId],
+                    };
+
+                    typeDef.Properties.Add(propName, property);
+
                     // 1 = editable
                     // 2 = const
                     // 32 = ?
@@ -172,8 +362,12 @@ namespace Gibbed.RED.FileFormats
             {
                 var rawTypeDef = rawTypeDefs[i];
 
-                if (rawTypeDef.Type != Script.NativeType.Class ||
-                    (rawTypeDef.Flags & Script.RawTypeDefinitionFlags.Unknown0) == 0)
+                if (rawTypeDef.Type != Script.NativeType.Class)
+                {
+                    continue;
+                }
+                else if ((rawTypeDef.Flags &
+                    Script.TypeDefinitionFlags.Scripted) == 0)
                 {
                     continue;
                 }
@@ -184,18 +378,27 @@ namespace Gibbed.RED.FileFormats
                     throw new FormatException();
                 }
 
+                var typeDef = (Script.ClassDefinition)typeDefs[i];
+
                 var defaultCount = input.ReadValueEncodedS32();
                 for (int j = 0; j < defaultCount; j++)
                 {
-                    var propName = strings[input.ReadValueEncodedS32()]; // string index?
-                    var dataType = input.ReadValueEncodedS32();
+                    var propName = strings[input.ReadValueEncodedS32()].Value;
 
+                    var dataType = input.ReadValueEncodedS32();
                     if (dataType == 0 || dataType == 1)
                     {
-                        var typeName = input.ReadStringEncodedUnicode();
+                        var typeName = input.ReadEncodedString();
                         var typeDataSize = input.ReadValueU32(); // size + 4
                         var typeData = new byte[typeDataSize - 4];
                         input.Read(typeData, 0, typeData.Length);
+
+                        typeDef.Defaults.Add(propName,
+                            new Script.PropertyDefault()
+                            {
+                                TypeName = typeName,
+                                Data = typeData,
+                            });
                     }
                     else
                     {

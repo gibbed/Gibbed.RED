@@ -20,19 +20,10 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Script
+namespace Gibbed.RED.FileFormats.Game
 {
-    internal class RawTypeDefinition
+    [ResourceHandler("CParticleDrawerScreen")]
+    public class CParticleDrawerScreen : CObject
     {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
     }
 }

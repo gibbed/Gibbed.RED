@@ -20,19 +20,19 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Script
-{
-    internal class RawTypeDefinition
-    {
-        public string Name;
-        public NativeType Type;
-        public int NativePropertyCount;
-        public int ScriptedPropertyCount;
-        public TypeDefinitionFlags Flags;
+using Gibbed.RED.FileFormats.Serializers;
 
-        public override string ToString()
-        {
-            return this.Name;
-        }
+namespace Gibbed.RED.FileFormats.Game
+{
+    //[ResourceHandler("CMaterialGraph")]
+    public class CMaterialGraph : CResource
+    {
+        [PropertyName("sortGroup")]
+        [PropertySerializer(typeof(EnumSerializer<ERenderingSortGroup>))]
+        public ERenderingSortGroup SortGroup { get; set; }
+
+        [PropertyName("offset")]
+        [PropertySerializer(typeof(ClassSerializer<Vector>))]
+        public Vector Offset { get; set; }
     }
 }

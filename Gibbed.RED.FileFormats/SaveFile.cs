@@ -82,7 +82,7 @@ namespace Gibbed.RED.FileFormats
                     throw new FormatException();
                 }
 
-                var name = input.ReadStringEncodedUnicode();
+                var name = input.ReadEncodedString();
                 if (name != kv.Key)
                 {
                     throw new FormatException();
