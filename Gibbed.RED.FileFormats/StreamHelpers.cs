@@ -63,7 +63,7 @@ namespace Gibbed.RED.FileFormats
             return (int)value;
         }
 
-        public static int WriteValueEncodedS32(this Stream stream, int value)
+        public static void WriteValueEncodedS32(this Stream stream, int value)
         {
             byte op = 0;
 
@@ -97,8 +97,6 @@ namespace Gibbed.RED.FileFormats
                 }
                 while (value > 0);
             }
-
-            return (int)value;
         }
 
         public static string ReadEncodedStringW(this Stream stream)
