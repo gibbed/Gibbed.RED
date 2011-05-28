@@ -233,21 +233,26 @@ namespace Gibbed.RED.FileFormats
 
         private static uint GetRealKey(uint fileKey)
         {
+            /* Thanks to hhrhhr for making it obvious that the
+             * keys were tied to specific language files.
+             * 
+             * I hadn't noticed that for some reason. :)
+             */
+
             switch (fileKey)
             {
                 case 0x18632176: return 0x16875467;
-                case 0x18796651: return 0x42387566;
-                case 0x23863176: return 0x75921975;
+                case 0x18796651: return 0x42387566; // ES
+                case 0x23863176: return 0x75921975; // FR
                 case 0x24987354: return 0x21793217;
                 case 0x42378932: return 0x67823218;
-                case 0x43975139: return 0x79321793;
-                case 0x45931894: return 0x12375973;
+                case 0x43975139: return 0x79321793; // EN
+                case 0x45931894: return 0x12375973; // IT
                 case 0x54834893: return 0x59825646;
-                case 0x75886138: return 0x42791159;
-                case 0x83496237: return 0x73946816;
-
-                case 0x63481486: return 0x42386347; // RU (1.1) - thanks hhrhhr
-                case 0x77932179: return 0x54932186; // RU (1.0 - 1.0.0.3) - thanks hhrhhr
+                case 0x63481486: return 0x42386347; // RU (1.1)
+                case 0x75886138: return 0x42791159; // DE
+                case 0x77932179: return 0x54932186; // RU (1.0)
+                case 0x83496237: return 0x73946816; // PL
             }
 
             return 0;
