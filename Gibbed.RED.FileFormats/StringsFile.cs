@@ -243,6 +243,8 @@ namespace Gibbed.RED.FileFormats
                 case 0x54834893: return 0x59825646;
                 case 0x75886138: return 0x42791159;
                 case 0x83496237: return 0x73946816;
+
+                case 0x63481486: return 0x42386347; // RU - thanks hhrhhr
             }
 
             return 0;
