@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -22,12 +22,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using Gibbed.Helpers;
 using System.Linq;
+using Gibbed.IO;
 using Gibbed.RED.FileFormats;
-using Package = Gibbed.RED.FileFormats.Package;
 using NDesk.Options;
+using Package = Gibbed.RED.FileFormats.Package;
 
 namespace Gibbed.RED.Pack
 {
@@ -42,19 +43,25 @@ namespace Gibbed.RED.Pack
         {
             bool showHelp = false;
             bool verbose = false;
+            bool future = false;
 
-            OptionSet options = new OptionSet()
+            var options = new OptionSet()
             {
                 {
                     "v|verbose",
                     "be verbose",
                     v => verbose = v != null
-                },
+                    },
+                {
+                    "f|future",
+                    "set file times to be in the far future",
+                    v => future = v != null
+                    },
                 {
                     "h|help",
-                    "show this message and exit", 
+                    "show this message and exit",
                     v => showHelp = v != null
-                },
+                    },
             };
 
             List<string> extras;
@@ -105,14 +112,13 @@ namespace Gibbed.RED.Pack
             {
                 string inputPath = Path.GetFullPath(relPath);
 
-                if (inputPath.EndsWith(Path.DirectorySeparatorChar.ToString()) == true)
+                if (inputPath.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)) == true)
                 {
                     inputPath = inputPath.Substring(0, inputPath.Length - 1);
                 }
 
                 foreach (string path in Directory.GetFiles(inputPath, "*", SearchOption.AllDirectories))
                 {
-                    bool hasName;
                     string fullPath = Path.GetFullPath(path);
                     string partPath = fullPath.Substring(inputPath.Length + 1).ToLowerInvariant();
 
@@ -146,25 +152,29 @@ namespace Gibbed.RED.Pack
 
                     using (var input = File.OpenRead(kvp.Value))
                     {
-                        var entry = new Package.Entry();
-                        entry.Name = kvp.Key;
-                        entry.TimeStamp = File.GetLastWriteTime(kvp.Value);
-                        entry.UncompressedSize = input.Length;
-                        entry.Offset = output.Position;
+                        var entry = new Package.Entry
+                        {
+                            Name = kvp.Key,
+                            TimeStamp = future == false
+                                            ? File.GetLastWriteTime(kvp.Value)
+                                            : new DateTime(2015, 1, 1, 1, 1, 1),
+                            UncompressedSize = input.Length,
+                            Offset = output.Position,
+                        };
 
-                        int blockCount = (int)((entry.UncompressedSize + 0xFFFF) >> 16); // .Align(0x10000) / 0x10000;
+                        var blockCount = (int)((entry.UncompressedSize + 0xFFFF) >> 16); // .Align(0x10000) / 0x10000;
                         var compressedBlocks = new byte[blockCount][];
                         var compressedSizes = new int[blockCount];
                         var uncompressedBlock = new byte[0x10000];
 
-                        long left = input.Length;
                         for (int i = 0; i < blockCount; i++)
                         {
                             int uncompressedSize = input.Read(
-                                uncompressedBlock, 0,
+                                uncompressedBlock,
+                                0,
                                 uncompressedBlock.Length);
-                            
-                            var lzf = new LZF();
+
+                            var lzf = new Lzf();
                             compressedBlocks[i] = new byte[0x20000];
                             int compressedSize = lzf.Compress(
                                 uncompressedBlock,

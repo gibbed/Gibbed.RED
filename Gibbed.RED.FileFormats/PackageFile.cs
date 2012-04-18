@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -24,13 +24,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Gibbed.Helpers;
+using Gibbed.IO;
 
 namespace Gibbed.RED.FileFormats
 {
     public class PackageFile
     {
         public uint Version;
+
         public List<Package.Entry> Entries
             = new List<Package.Entry>();
 
@@ -43,7 +44,8 @@ namespace Gibbed.RED.FileFormats
                 {
                     if (string.IsNullOrEmpty(entry.Name) == false)
                     {
-                        for (int i = 0; i < entry.Name.Length; i++)
+                        // ReSharper disable ForCanBeConvertedToForeach
+                        for (int i = 0; i < entry.Name.Length; i++) // ReSharper restore ForCanBeConvertedToForeach
                         {
                             hash ^= (byte)entry.Name[i];
                             hash *= 0x00000100000001B3UL;
@@ -84,7 +86,7 @@ namespace Gibbed.RED.FileFormats
                 output.WriteValueU16((ushort)(entry.Name.Length + 1));
                 output.WriteString(entry.Name, Encoding.ASCII);
                 output.WriteValueU8(0);
-                
+
                 output.WriteValueS64(entry.TimeStamp.ToFileTime());
                 output.WriteValueS64(entry.UncompressedSize);
                 output.WriteValueS64(entry.Offset);
@@ -92,7 +94,7 @@ namespace Gibbed.RED.FileFormats
             }
         }
 
-        public void DeserializeWithCDKey(Stream input, string cdkey)
+        public void DeserializeWithCdKey(Stream input, string cdkey)
         {
             if (cdkey == null)
             {
@@ -129,7 +131,8 @@ namespace Gibbed.RED.FileFormats
             }
 
             var entryCount = input.ReadValueU32();
-            /*var unknown =*/ input.ReadValueU32();
+            /*var unknown =*/
+            input.ReadValueU32();
             var entryTableOffset = input.ReadValueS64();
             var entryTableHash = input.ReadValueU64();
 
@@ -162,7 +165,7 @@ namespace Gibbed.RED.FileFormats
                             length, true, Encoding.ASCII);
                     }
                 }
-                
+
                 //entry.TimeStamp = input.ReadValueS64();
                 entry.TimeStamp = DateTime.FromFileTime(
                     input.ReadValueS64());

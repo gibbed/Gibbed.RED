@@ -51,18 +51,18 @@ namespace Gibbed.RED.Pack
     /// Improved C# LZF Compressor, a very small data compression library.
     /// The compression algorithm is extremely fast. 
     /// </summary>
-    public sealed class LZF
+    public sealed class Lzf
     {
         /// <summary>
         /// Hashtable, that can be allocated only once
         /// </summary>
-        private readonly long[] HashTable = new long[HSIZE];
+        private readonly long[] _HashTable = new long[_Hsize];
 
-        private const uint HLOG = 14;
-        private const uint HSIZE = (1 << 14);
-        private const uint MAX_LIT = (1 << 5);
-        private const uint MAX_OFF = (1 << 13);
-        private const uint MAX_REF = ((1 << 8) + (1 << 3));
+        private const uint _Hlog = 14;
+        private const uint _Hsize = (1 << 14);
+        private const uint _MaxLit = (1 << 5);
+        private const uint _MaxOff = (1 << 13);
+        private const uint _MaxRef = ((1 << 8) + (1 << 3));
 
         /// <summary>
         /// Compresses the data using LibLZF algorithm
@@ -74,15 +74,12 @@ namespace Gibbed.RED.Pack
         /// <returns>The size of the compressed archive in the output buffer</returns>
         public int Compress(byte[] input, int inputLength, byte[] output, int outputLength)
         {
-            Array.Clear(HashTable, 0, (int)HSIZE);
+            Array.Clear(this._HashTable, 0, (int)_Hsize);
 
-            long hslot;
             uint iidx = 0;
             uint oidx = 0;
-            long reference;
 
-            uint hval = (uint)(((input[iidx]) << 8) | input[iidx + 1]); // FRST(in_data, iidx);
-            long off;
+            var hval = (uint)(((input[iidx]) << 8) | input[iidx + 1]); // FRST(in_data, iidx);
             int lit = 0;
 
             for (;;)
@@ -90,12 +87,13 @@ namespace Gibbed.RED.Pack
                 if (iidx < inputLength - 2)
                 {
                     hval = (hval << 8) | input[iidx + 2];
-                    hslot = ((hval ^ (hval << 5)) >> (int)(((3 * 8 - HLOG)) - hval * 5) & (HSIZE - 1));
-                    reference = HashTable[hslot];
-                    HashTable[hslot] = (long)iidx;
+                    long hslot = ((hval ^ (hval << 5)) >> (int)(((3 * 8 - _Hlog)) - hval * 5) & (_Hsize - 1));
+                    long reference = this._HashTable[hslot];
+                    this._HashTable[hslot] = iidx;
 
 
-                    if ((off = iidx - reference - 1) < MAX_OFF
+                    long off;
+                    if ((off = iidx - reference - 1) < _MaxOff
                         && iidx + 4 < inputLength
                         && reference > 0
                         && input[reference + 0] == input[iidx + 0]
@@ -106,7 +104,7 @@ namespace Gibbed.RED.Pack
                         /* match found at *reference++ */
                         uint len = 2;
                         uint maxlen = (uint)inputLength - iidx - len;
-                        maxlen = maxlen > MAX_REF ? MAX_REF : maxlen;
+                        maxlen = maxlen > _MaxRef ? _MaxRef : maxlen;
 
                         if (oidx + lit + 1 + 3 >= outputLength)
                         {
@@ -149,11 +147,11 @@ namespace Gibbed.RED.Pack
                         hval = (uint)(((input[iidx]) << 8) | input[iidx + 1]);
 
                         hval = (hval << 8) | input[iidx + 2];
-                        HashTable[((hval ^ (hval << 5)) >> (int)(((3 * 8 - HLOG)) - hval * 5) & (HSIZE - 1))] = iidx;
+                        this._HashTable[((hval ^ (hval << 5)) >> (int)(((3 * 8 - _Hlog)) - hval * 5) & (_Hsize - 1))] = iidx;
                         iidx++;
 
                         hval = (hval << 8) | input[iidx + 2];
-                        HashTable[((hval ^ (hval << 5)) >> (int)(((3 * 8 - HLOG)) - hval * 5) & (HSIZE - 1))] = iidx;
+                        this._HashTable[((hval ^ (hval << 5)) >> (int)(((3 * 8 - _Hlog)) - hval * 5) & (_Hsize - 1))] = iidx;
                         iidx++;
                         continue;
                     }
@@ -167,14 +165,14 @@ namespace Gibbed.RED.Pack
                 lit++;
                 iidx++;
 
-                if (lit == MAX_LIT)
+                if (lit == _MaxLit)
                 {
-                    if (oidx + 1 + MAX_LIT >= outputLength)
+                    if (oidx + 1 + _MaxLit >= outputLength)
                     {
                         return 0;
                     }
 
-                    output[oidx++] = (byte)(MAX_LIT - 1);
+                    output[oidx++] = (byte)(_MaxLit - 1);
                     lit = -lit;
                     do
                     {

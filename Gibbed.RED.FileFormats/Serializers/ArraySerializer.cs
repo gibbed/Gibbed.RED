@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -28,7 +28,7 @@ namespace Gibbed.RED.FileFormats.Serializers
     public class ArraySerializer<TSerializer> : IPropertySerializer
         where TSerializer : IPropertySerializer, new()
     {
-        private static TSerializer Serializer
+        private static readonly TSerializer _Serializer
             = new TSerializer();
 
         public void Serialize(IFileStream stream, object value)
@@ -55,7 +55,7 @@ namespace Gibbed.RED.FileFormats.Serializers
             var list = new List<object>();
             for (uint i = 0; i < count; i++)
             {
-                var element = Serializer.Deserialize(stream);
+                var element = _Serializer.Deserialize(stream);
                 list.Add(element);
             }
             return list;
@@ -65,7 +65,7 @@ namespace Gibbed.RED.FileFormats.Serializers
     public class ArraySerializer<TElement, TSerializer> : IPropertySerializer
         where TSerializer : IPropertySerializer, new()
     {
-        private static TSerializer Serializer
+        private static readonly TSerializer _Serializer
             = new TSerializer();
 
         public void Serialize(IFileStream stream, object value)
@@ -92,7 +92,7 @@ namespace Gibbed.RED.FileFormats.Serializers
             var list = new List<TElement>();
             for (uint i = 0; i < count; i++)
             {
-                var element = (TElement)Serializer.Deserialize(stream);
+                var element = (TElement)_Serializer.Deserialize(stream);
                 list.Add(element);
             }
             return list;

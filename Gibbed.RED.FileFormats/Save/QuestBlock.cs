@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -27,33 +27,35 @@ namespace Gibbed.RED.FileFormats.Save
 {
     public class QuestBlock : ISaveBlock
     {
-        private Guid _GUID;
-        private List<string> _InputNames;
-        private int _ActivationState;
+        public Guid Guid;
+        public List<string> InputNames;
+        public int ActivationState;
 
         public void Serialize(ISaveStream stream)
         {
             if (stream.Mode == SerializeMode.Reading)
             {
-                stream.SerializeValue("GUID", ref this._GUID);
+                stream.SerializeValue("GUID", ref this.Guid);
 
                 uint inputNamesCount = 0;
                 stream.SerializeValue("inputNamesCount", ref inputNamesCount);
-                this._InputNames = new List<string>();
+                this.InputNames = new List<string>();
                 for (uint i = 0; i < inputNamesCount; i++)
                 {
                     string inputName = null;
                     stream.SerializeValue("inputName", ref inputName);
-                    this._InputNames.Add(inputName);
+                    this.InputNames.Add(inputName);
                 }
 
-                stream.SerializeValue("activationState", ref this._ActivationState);
+                stream.SerializeValue("activationState", ref this.ActivationState);
 
                 // it appears there is data loaded here
                 // depending on the actual quest data :(
                 throw new NotImplementedException();
             }
+                // ReSharper disable RedundantIfElseBlock
             else
+                // ReSharper restore RedundantIfElseBlock
             {
                 throw new NotImplementedException();
             }

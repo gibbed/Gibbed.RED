@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -23,15 +23,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Gibbed.Helpers;
+using Gibbed.IO;
 
 namespace Gibbed.RED.FileFormats.Resource
 {
     internal class ResourceReader : IFileStream, IDisposable
     {
-        private MemoryStream Stream;
-        private Info Info;
-        private bool _Disposed = false;
+        private readonly MemoryStream _Stream;
+        private Info _Info;
+        private bool _Disposed;
 
         public ResourceReader(
             Info info,
@@ -42,8 +42,8 @@ namespace Gibbed.RED.FileFormats.Resource
                 throw new ArgumentNullException("data");
             }
 
-            this.Info = info;
-            this.Stream = new MemoryStream((byte[])data.Clone());
+            this._Info = info;
+            this._Stream = new MemoryStream((byte[])data.Clone());
         }
 
         ~ResourceReader()
@@ -57,7 +57,7 @@ namespace Gibbed.RED.FileFormats.Resource
             {
                 if (disposing == true)
                 {
-                    this.Stream.Dispose();
+                    this._Stream.Dispose();
                 }
 
                 this._Disposed = true;
@@ -78,78 +78,91 @@ namespace Gibbed.RED.FileFormats.Resource
 
         public long Position
         {
-            get
-            {
-                return this.Stream.Position;
-            }
-            set
-            {
-                this.Stream.Position = value;
-            }
+            get { return this._Stream.Position; }
+            set { this._Stream.Position = value; }
         }
 
         public long Length
         {
-            get
-            {
-                return this.Stream.Length;
-            }
+            get { return this._Stream.Length; }
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref bool value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueB8();
+            value = this._Stream.ReadValueB8();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref sbyte value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueS8();
+            value = this._Stream.ReadValueS8();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref byte value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueU8();
+            value = this._Stream.ReadValueU8();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref short value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueS16();
+            value = this._Stream.ReadValueS16();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref ushort value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueU16();
+            value = this._Stream.ReadValueU16();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref int value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueS32();
+            value = this._Stream.ReadValueS32();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref uint value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueU32();
+            value = this._Stream.ReadValueU32();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref float value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueF32();
+            value = this._Stream.ReadValueF32();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref string value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadEncodedString();
+            value = this._Stream.ReadEncodedString();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref Guid value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueGuid();
+            value = this._Stream.ReadValueGuid();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref byte[] value, int length)
+            // ReSharper restore RedundantAssignment
         {
             value = new byte[length];
-            if (this.Stream.Read(value, 0, value.Length) != value.Length)
+            if (this._Stream.Read(value, 0, value.Length) != value.Length)
             {
                 throw new FormatException();
             }
@@ -160,34 +173,39 @@ namespace Gibbed.RED.FileFormats.Resource
             ((IFileStream)this).SerializeValue(ref value, (int)length);
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeBuffer(ref byte[] value)
+            // ReSharper restore RedundantAssignment
         {
-            var length = this.Stream.ReadValueEncodedS32();
+            var length = this._Stream.ReadValueEncodedS32();
             var buffer = new byte[length];
-            this.Stream.Read(buffer, 0, buffer.Length);
+            this._Stream.Read(buffer, 0, buffer.Length);
             value = buffer;
         }
 
         void IFileStream.SerializeName(ref string value)
         {
-            var index = this.Stream.ReadValueS16();
+            var index = this._Stream.ReadValueS16();
 
             if (index == 0)
             {
                 value = null;
                 return;
             }
-            else if (index > this.Info.Names.Length)
+
+            if (index > this._Info.Names.Length)
             {
                 throw new FormatException();
             }
 
-            value = this.Info.Names[index - 1];
+            value = this._Info.Names[index - 1];
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeTagList(ref List<string> value)
+            // ReSharper restore RedundantAssignment
         {
-            var count = this.Stream.ReadValueEncodedS32();
+            var count = this._Stream.ReadValueEncodedS32();
 
             var list = new List<string>();
             for (int i = 0; i < count; i++)
@@ -199,7 +217,9 @@ namespace Gibbed.RED.FileFormats.Resource
             value = list;
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeObject<TType>(ref TType value)
+            // ReSharper restore RedundantAssignment
         {
             var instance = new TType();
             instance.Serialize(this);
@@ -208,18 +228,18 @@ namespace Gibbed.RED.FileFormats.Resource
 
         void IFileStream.SerializePointer(ref IFileObject value)
         {
-            var index = this.Stream.ReadValueS32();
+            var index = this._Stream.ReadValueS32();
 
             if (index > 0)
             {
                 index--;
 
-                if (index >= this.Info.Objects.Length)
+                if (index >= this._Info.Objects.Length)
                 {
                     throw new FormatException();
                 }
 
-                var obj = this.Info.Objects[index];
+                var obj = this._Info.Objects[index];
                 value = obj.Data;
             }
             else if (index == 0)
@@ -231,25 +251,27 @@ namespace Gibbed.RED.FileFormats.Resource
                 index = -index;
                 index--;
 
-                if (index >= this.Info.Links.Length)
+                if (index >= this._Info.Links.Length)
                 {
                     throw new FormatException();
                 }
 
                 var link = new Link()
                 {
-                    Info = this.Info.Links[index],
+                    Info = this._Info.Links[index],
                 };
 
                 value = link;
             }
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializePointer(ref List<IFileObject> value, bool encoded)
+            // ReSharper restore RedundantAssignment
         {
-            var count = encoded == false ?
-                this.Stream.ReadValueS32() :
-                this.Stream.ReadValueEncodedS32();
+            var count = encoded == false
+                            ? this._Stream.ReadValueS32()
+                            : this._Stream.ReadValueEncodedS32();
             var list = new List<IFileObject>();
             for (int i = 0; i < count; i++)
             {
@@ -259,7 +281,6 @@ namespace Gibbed.RED.FileFormats.Resource
             }
             value = list;
         }
-
         #endregion
     }
 }

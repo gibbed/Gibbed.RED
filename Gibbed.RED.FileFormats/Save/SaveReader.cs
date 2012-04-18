@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -23,14 +23,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Gibbed.Helpers;
+using Gibbed.IO;
 
 namespace Gibbed.RED.FileFormats.Save
 {
     public class SaveReader : ISaveStream, IFileStream, IDisposable
     {
-        private MemoryStream Stream;
-        private bool _Disposed = false;
+        private readonly MemoryStream _Stream;
+        private bool _Disposed;
 
         public SaveReader(byte[] data)
         {
@@ -39,7 +39,7 @@ namespace Gibbed.RED.FileFormats.Save
                 throw new ArgumentNullException("data");
             }
 
-            this.Stream = new MemoryStream((byte[])data.Clone());
+            this._Stream = new MemoryStream((byte[])data.Clone());
         }
 
         ~SaveReader()
@@ -53,7 +53,7 @@ namespace Gibbed.RED.FileFormats.Save
             {
                 if (disposing == true)
                 {
-                    this.Stream.Dispose();
+                    this._Stream.Dispose();
                 }
 
                 this._Disposed = true;
@@ -68,26 +68,29 @@ namespace Gibbed.RED.FileFormats.Save
 
         private byte[] ReadValue(string name, string type)
         {
-            if (this.Stream.ReadValueU32() != 0x4C415641)
+            if (this._Stream.ReadValueU32() != 0x4C415641)
             {
                 throw new FormatException("not a value");
             }
 
-            var actualName = this.Stream.ReadEncodedString();
+            var actualName = this._Stream.ReadEncodedString();
             if (actualName != name)
             {
                 throw new FormatException(string.Format("read wrong value (got '{0}', wanted '{1}'", actualName, name));
             }
 
-            var actualType = this.Stream.ReadEncodedString();
+            var actualType = this._Stream.ReadEncodedString();
             if (actualName != name)
             {
-                throw new FormatException(string.Format("read wrong type for value {0} (got '{1}', wanted '{2}'", name, actualType, type));
+                throw new FormatException(string.Format("read wrong type for value {0} (got '{1}', wanted '{2}'",
+                                                        name,
+                                                        actualType,
+                                                        type));
             }
 
-            var size = this.Stream.ReadValueU32();
+            var size = this._Stream.ReadValueU32();
             var data = new byte[size];
-            if (this.Stream.Read(data, 0, data.Length) != data.Length)
+            if (this._Stream.Read(data, 0, data.Length) != data.Length)
             {
                 throw new FormatException();
             }
@@ -97,14 +100,17 @@ namespace Gibbed.RED.FileFormats.Save
 
         private byte[] ReadArray(string name, string type, string elementType, out int count)
         {
-            count = 0;
             using (var input = new MemoryStream(this.ReadValue(name, type)))
             {
                 count = input.ReadValueS32();
                 var actualElementType = input.ReadEncodedString();
                 if (actualElementType != elementType)
                 {
-                    throw new FormatException(string.Format("read wrong element type for value {0} (got '{1}', wanted '{2}'", name, actualElementType, elementType));
+                    throw new FormatException(
+                        string.Format("read wrong element type for value {0} (got '{1}', wanted '{2}'",
+                                      name,
+                                      actualElementType,
+                                      elementType));
                 }
 
                 if (input.ReadValueS16() != -1)
@@ -267,20 +273,20 @@ namespace Gibbed.RED.FileFormats.Save
 
         void ISaveStream.SerializeBlock<TType>(string name, ref TType value)
         {
-            if (this.Stream.ReadValueU32() != 0x4B434C42) // BLCK
+            if (this._Stream.ReadValueU32() != 0x4B434C42) // BLCK
             {
                 throw new FormatException();
             }
 
-            var actualName = this.Stream.ReadEncodedString();
+            var actualName = this._Stream.ReadEncodedString();
             if (name != actualName)
             {
                 throw new FormatException();
             }
 
-            var size = this.Stream.ReadValueU32();
+            var size = this._Stream.ReadValueU32();
             var data = new byte[size];
-            if (this.Stream.Read(data, 0, data.Length) != data.Length)
+            if (this._Stream.Read(data, 0, data.Length) != data.Length)
             {
                 throw new FormatException();
             }
@@ -290,7 +296,7 @@ namespace Gibbed.RED.FileFormats.Save
                 var instance = new TType();
                 instance.Serialize(reader);
 
-                if (reader.Stream.Position != reader.Stream.Length)
+                if (reader._Stream.Position != reader._Stream.Length)
                 {
                     throw new FormatException();
                 }
@@ -302,20 +308,20 @@ namespace Gibbed.RED.FileFormats.Save
         void ISaveStream.SerializeBlocks<TType>(
             string name, string type, ref List<TType> value)
         {
-            if (this.Stream.ReadValueU32() != 0x4B434C42) // BLCK
+            if (this._Stream.ReadValueU32() != 0x4B434C42) // BLCK
             {
                 throw new FormatException();
             }
 
-            var actualName = this.Stream.ReadEncodedString();
+            var actualName = this._Stream.ReadEncodedString();
             if (name != actualName)
             {
                 throw new FormatException();
             }
 
-            var size = this.Stream.ReadValueU32();
+            var size = this._Stream.ReadValueU32();
             var data = new byte[size];
-            if (this.Stream.Read(data, 0, data.Length) != data.Length)
+            if (this._Stream.Read(data, 0, data.Length) != data.Length)
             {
                 throw new FormatException();
             }
@@ -323,7 +329,7 @@ namespace Gibbed.RED.FileFormats.Save
             using (var reader = new SaveReader(data))
             {
                 var list = new List<TType>();
-                while (reader.Stream.Position < reader.Stream.Length)
+                while (reader._Stream.Position < reader._Stream.Length)
                 {
                     var instance = new TType();
                     ((ISaveStream)reader).SerializeBlock(type, ref instance);
@@ -334,7 +340,9 @@ namespace Gibbed.RED.FileFormats.Save
         }
 
         void ISaveStream.SerializeObject<TType>(
+            // ReSharper disable RedundantAssignment
             string name, string type, ref TType value)
+            // ReSharper restore RedundantAssignment
         {
             var data = this.ReadValue(name, type);
 
@@ -355,78 +363,91 @@ namespace Gibbed.RED.FileFormats.Save
 
         long IFileStream.Position
         {
-            get
-            {
-                return this.Stream.Position;
-            }
-            set
-            {
-                this.Stream.Position = value;
-            }
+            get { return this._Stream.Position; }
+            set { this._Stream.Position = value; }
         }
 
         long IFileStream.Length
         {
-            get
-            {
-                return this.Stream.Length;
-            }
+            get { return this._Stream.Length; }
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref bool value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueB8();
+            value = this._Stream.ReadValueB8();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref sbyte value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueS8();
+            value = this._Stream.ReadValueS8();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref byte value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueU8();
+            value = this._Stream.ReadValueU8();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref short value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueS16();
+            value = this._Stream.ReadValueS16();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref ushort value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueU16();
+            value = this._Stream.ReadValueU16();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref int value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueS32();
+            value = this._Stream.ReadValueS32();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref uint value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueU32();
+            value = this._Stream.ReadValueU32();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref float value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueF32();
+            value = this._Stream.ReadValueF32();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref string value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadEncodedString();
+            value = this._Stream.ReadEncodedString();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref Guid value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadValueGuid();
+            value = this._Stream.ReadValueGuid();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeValue(ref byte[] value, int length)
+            // ReSharper restore RedundantAssignment
         {
             value = new byte[length];
-            if (this.Stream.Read(value, 0, value.Length) != value.Length)
+            if (this._Stream.Read(value, 0, value.Length) != value.Length)
             {
                 throw new FormatException();
             }
@@ -442,9 +463,11 @@ namespace Gibbed.RED.FileFormats.Save
             throw new NotSupportedException();
         }
 
+        // ReSharper disable RedundantAssignment
         void IFileStream.SerializeName(ref string value)
+            // ReSharper restore RedundantAssignment
         {
-            value = this.Stream.ReadEncodedString();
+            value = this._Stream.ReadEncodedString();
         }
 
         void IFileStream.SerializeTagList(ref List<string> value)

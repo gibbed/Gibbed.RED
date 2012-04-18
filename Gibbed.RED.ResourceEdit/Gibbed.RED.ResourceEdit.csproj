@@ -104,10 +104,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Gibbed.Helpers\Gibbed.Helpers.csproj">
-      <Project>{5162A9FB-4DE1-4BBF-B7A2-5E8116AB0D26}</Project>
-      <Name>Gibbed.Helpers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Gibbed.RED.FileFormats\Gibbed.RED.FileFormats.csproj">
       <Project>{B167294C-8BD0-4165-B06F-42F876BE76E0}</Project>
       <Name>Gibbed.RED.FileFormats</Name>

@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Gibbed.Helpers;
+using Gibbed.IO;
 
 namespace Gibbed.RED.FileFormats
 {
@@ -46,8 +46,10 @@ namespace Gibbed.RED.FileFormats
             }
 
             this.Version = input.ReadValueU32();
+            // ReSharper disable UnusedVariable
             var subversion = input.ReadValueU32();
-            
+            // ReSharper restore UnusedVariable
+
             if (this.Version >= 2)
             {
                 long position = input.Position;

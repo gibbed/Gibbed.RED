@@ -20,13 +20,23 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Resource
+using System;
+
+namespace Gibbed.RED.FileFormats.Serializers
 {
-    internal struct Info
+    public class IdTagSerializer : IPropertySerializer
     {
-        public string[] Names;
-        public LinkInfo[] Links;
-        public ObjectInfo[] Objects;
-        public string[] Dependencies;
+        public void Serialize(IFileStream stream, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Deserialize(IFileStream stream)
+        {
+            var value = new Game.IdTag();
+            stream.SerializeValue(ref value.Unknown0);
+            stream.SerializeValue(ref value.Unknown1);
+            return value;
+        }
     }
 }

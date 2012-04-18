@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -79,19 +79,20 @@ namespace Gibbed.RED.FileFormats
             }
         }
 
-        private static Dictionary<Type, SerializableObjectInfo> TypeInfoCache
+        private static readonly Dictionary<Type, SerializableObjectInfo> _TypeInfoCache
             = new Dictionary<Type, SerializableObjectInfo>();
-        private static Dictionary<Type, IPropertySerializer> SerializerCache
+
+        private static readonly Dictionary<Type, IPropertySerializer> _SerializerCache
             = new Dictionary<Type, IPropertySerializer>();
 
         private static SerializableObjectInfo GetTypeInfo(Type type)
         {
-            if (TypeInfoCache.ContainsKey(type) == true)
+            if (_TypeInfoCache.ContainsKey(type) == true)
             {
-                return TypeInfoCache[type];
+                return _TypeInfoCache[type];
             }
 
-            return TypeInfoCache[type] = new SerializableObjectInfo(type);
+            return _TypeInfoCache[type] = new SerializableObjectInfo(type);
         }
 
         private static void ReadPropertyValue(
@@ -102,15 +103,17 @@ namespace Gibbed.RED.FileFormats
         {
             if (target == null)
             {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException("target");
             }
-            else if (propertyName == null)
+
+            if (propertyName == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException("propertyName");
             }
-            else if (typeName == null)
+
+            if (typeName == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException("typeName");
             }
 
             var type = target.GetType();
@@ -124,20 +127,22 @@ namespace Gibbed.RED.FileFormats
             {
                 throw new FormatException(string.Format(
                     "{0} does not contain a property '{1}' ({2})",
-                    type, propertyName, typeName));
+                    type,
+                    propertyName,
+                    typeName));
             }
 
             var prop = info.Properties[propertyName];
             IPropertySerializer serializer;
 
-            if (SerializerCache.ContainsKey(prop.Serializer) == false)
+            if (_SerializerCache.ContainsKey(prop.Serializer) == false)
             {
                 serializer = (IPropertySerializer)Activator.CreateInstance(prop.Serializer);
-                SerializerCache[prop.Serializer] = serializer;
+                _SerializerCache[prop.Serializer] = serializer;
             }
             else
             {
-                serializer = SerializerCache[prop.Serializer];
+                serializer = _SerializerCache[prop.Serializer];
             }
 
             var value = serializer.Deserialize(stream);
@@ -146,7 +151,7 @@ namespace Gibbed.RED.FileFormats
 
         private class SerializableObjectInfo
         {
-            public Dictionary<string, SerializablePropertyInfo> Properties
+            public readonly Dictionary<string, SerializablePropertyInfo> Properties
                 = new Dictionary<string, SerializablePropertyInfo>();
 
             public SerializableObjectInfo(Type type)
@@ -160,10 +165,12 @@ namespace Gibbed.RED.FileFormats
                     if (serializerAttributes.Length > 0 &&
                         nameAttributes.Length > 0)
                     {
-                        var info = new SerializablePropertyInfo();
-                        info.PropertyInfo = propInfo;
-                        info.Serializer = ((PropertySerializerAttribute)serializerAttributes[0]).Serializer;
-                        info.Name = ((PropertyNameAttribute)nameAttributes[0]).Name;
+                        var info = new SerializablePropertyInfo
+                        {
+                            PropertyInfo = propInfo,
+                            Serializer = ((PropertySerializerAttribute)serializerAttributes[0]).Serializer,
+                            Name = ((PropertyNameAttribute)nameAttributes[0]).Name,
+                        };
 
                         if (descAttributes.Length > 0)
                         {
@@ -185,7 +192,9 @@ namespace Gibbed.RED.FileFormats
         private struct SerializablePropertyInfo
         {
             public string Name;
+            // ReSharper disable NotAccessedField.Local
             public string Description;
+            // ReSharper restore NotAccessedField.Local
             public Type Serializer;
             public System.Reflection.PropertyInfo PropertyInfo;
         }

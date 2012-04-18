@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -26,15 +26,20 @@ namespace Gibbed.RED.FileFormats.Script
 {
     public class ClassDefinition : TypeDefinition
     {
-        public ClassDefinition Super = null;
+        public ClassDefinition Super;
+
         public Dictionary<string, ClassDefinition> States
             = new Dictionary<string, ClassDefinition>();
+
         public List<string> NativeProperties
             = new List<string>();
+
         public Dictionary<string, PropertyDefinition> Properties
             = new Dictionary<string, PropertyDefinition>();
+
         public Dictionary<string, PropertyDefault> Defaults
             = new Dictionary<string, PropertyDefault>();
+
         public Dictionary<string, FunctionDefinition> Functions
             = new Dictionary<string, FunctionDefinition>();
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -20,7 +20,6 @@
  *    distribution.
  */
 
-using System;
 using Gibbed.RED.FileFormats.Serializers;
 
 namespace Gibbed.RED.FileFormats.Game

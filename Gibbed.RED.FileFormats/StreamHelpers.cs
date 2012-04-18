@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -23,13 +23,14 @@
 using System;
 using System.IO;
 using System.Text;
-using Gibbed.Helpers;
+using Gibbed.IO;
+using Enumerable = System.Linq.Enumerable;
 
 namespace Gibbed.RED.FileFormats
 {
     internal static class StreamHelpers
     {
-        private static Encoding WindowsEncoding = Encoding.GetEncoding(1252);
+        private static readonly Encoding _WindowsEncoding = Encoding.GetEncoding(1252);
 
         public static int ReadValueEncodedS32(this Stream stream)
         {
@@ -87,7 +88,7 @@ namespace Gibbed.RED.FileFormats
             {
                 do
                 {
-                    byte extra = (byte)(value & 0x7F);
+                    var extra = (byte)(value & 0x7F);
                     value >>= 7;
                     if (value > 0)
                     {
@@ -108,7 +109,7 @@ namespace Gibbed.RED.FileFormats
                 throw new InvalidOperationException();
             }
 
-            return stream.ReadString(length, true, WindowsEncoding);
+            return stream.ReadString(length, true, _WindowsEncoding);
         }
 
         public static string ReadEncodedString(this Stream stream)
@@ -123,9 +124,11 @@ namespace Gibbed.RED.FileFormats
                     throw new InvalidOperationException();
                 }
 
-                return stream.ReadString(length, true, WindowsEncoding);
+                return stream.ReadString(length, true, _WindowsEncoding);
             }
+                // ReSharper disable RedundantIfElseBlock
             else
+                // ReSharper restore RedundantIfElseBlock
             {
                 if (length >= 0x10000)
                 {
@@ -138,22 +141,14 @@ namespace Gibbed.RED.FileFormats
 
         public static void WriteEncodedString(this Stream stream, string value)
         {
-            bool isUnicode = false;
-            for (int i = 0; i < value.Length; i++)
-            {
-                if (value[i] > 0xFF && value[i] != '…')
-                {
-                    isUnicode = true;
-                    break;
-                }
-            }
+            bool isUnicode = Enumerable.Any(value, t => t > 0xFF && t != '…');
 
             if (isUnicode == false)
             {
                 value = value.Replace("…", "...");
 
                 stream.WriteValueEncodedS32(-value.Length);
-                stream.WriteString(value, WindowsEncoding);
+                stream.WriteString(value, _WindowsEncoding);
             }
             else
             {

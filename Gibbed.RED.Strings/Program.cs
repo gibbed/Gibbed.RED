@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
@@ -41,25 +42,36 @@ namespace Gibbed.RED.Strings
         {
             var mode = Mode.Unknown;
             bool showHelp = false;
-            bool overwriteFiles = false;
 
-            OptionSet options = new OptionSet()
+            var options = new OptionSet()
             {
                 {
                     "d|decode",
-                    "decode strings file", 
-                    v => mode = v != null ? Mode.Decode : mode
-                },
+                    "decode strings file",
+                    v =>
+                    {
+                        if (v != null)
+                        {
+                            mode = Mode.Decode;
+                        }
+                    }
+                    },
                 {
                     "e|encode",
-                    "encode strings file", 
-                    v => mode = v != null ? Mode.Encode : mode
-                },
+                    "encode strings file",
+                    v =>
+                    {
+                        if (v != null)
+                        {
+                            mode = Mode.Encode;
+                        }
+                    }
+                    },
                 {
                     "h|help",
-                    "show this message and exit", 
+                    "show this message and exit",
                     v => showHelp = v != null
-                },
+                    },
             };
 
             List<string> extras;
@@ -108,8 +120,9 @@ namespace Gibbed.RED.Strings
                     {
                         output.WriteStartDocument();
                         output.WriteStartElement("strings");
-                        output.WriteAttributeString("version", strings.Version.ToString());
-                        output.WriteAttributeString("encryption_key", strings.EncryptionKey.ToString());
+                        output.WriteAttributeString("version", strings.Version.ToString(CultureInfo.InvariantCulture));
+                        output.WriteAttributeString("encryption_key",
+                                                    strings.EncryptionKey.ToString(CultureInfo.InvariantCulture));
 
                         output.WriteStartElement("keys");
                         foreach (var kv in strings.Keys)
@@ -125,7 +138,7 @@ namespace Gibbed.RED.Strings
                         foreach (var kv in strings.Texts)
                         {
                             output.WriteStartElement("text");
-                            output.WriteAttributeString("id", kv.Key.ToString());
+                            output.WriteAttributeString("id", kv.Key.ToString(CultureInfo.InvariantCulture));
                             output.WriteValue(kv.Value);
                             output.WriteEndElement();
                         }
@@ -147,15 +160,26 @@ namespace Gibbed.RED.Strings
                     var nav = doc.CreateNavigator();
 
                     var root = nav.SelectSingleNode("/strings");
+                    if (root == null)
+                    {
+                        throw new FormatException();
+                    }
 
-                    var strings = new StringsFile();
-                    strings.Version = uint.Parse(root.GetAttribute("version", ""));
-                    strings.EncryptionKey = uint.Parse(root.GetAttribute("encryption_key", ""));
+                    var strings = new StringsFile
+                    {
+                        Version = uint.Parse(root.GetAttribute("version", "")),
+                        EncryptionKey = uint.Parse(root.GetAttribute("encryption_key", "")),
+                    };
 
                     var keys = root.Select("keys/key");
                     strings.Keys.Clear();
                     while (keys.MoveNext() == true)
                     {
+                        if (keys.Current == null)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
                         strings.Keys.Add(
                             keys.Current.GetAttribute("id", ""),
                             uint.Parse(keys.Current.Value));
@@ -165,6 +189,11 @@ namespace Gibbed.RED.Strings
                     strings.Texts.Clear();
                     while (texts.MoveNext() == true)
                     {
+                        if (texts.Current == null)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
                         var value = texts.Current.Value;
                         value = value.Replace("\r\n", "\n");
                         value = value.Replace("\r", "");
@@ -173,7 +202,7 @@ namespace Gibbed.RED.Strings
                             uint.Parse(texts.Current.GetAttribute("id", "")),
                             value);
                     }
-                    
+
                     using (var output = File.Create(outputPath))
                     {
                         strings.Serialize(output);

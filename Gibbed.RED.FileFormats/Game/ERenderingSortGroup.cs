@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -24,6 +24,7 @@ namespace Gibbed.RED.FileFormats.Game
 {
     public enum ERenderingSortGroup
     {
+        // ReSharper disable InconsistentNaming
         RSG_DebugUnlit = 0,
         RSG_Unlit = 1,
         RSG_LitOpaque = 2,
@@ -42,5 +43,6 @@ namespace Gibbed.RED.FileFormats.Game
         RSG_Prepare = 15,
         RSG_Skin = 16,
         RSG_Max = 17,
+        // ReSharper restore InconsistentNaming
     }
 }

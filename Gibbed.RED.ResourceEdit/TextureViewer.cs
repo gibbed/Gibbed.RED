@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -44,7 +44,8 @@ namespace Gibbed.RED.ResourceEdit
                 "{0}, {1} : {2}x{3}",
                 texture.Format,
                 texture.Compression,
-                texture.Width, texture.Height);
+                texture.Width,
+                texture.Height);
             //this.Text += ": " + entry.Description;
 
             this.Texture = texture;
@@ -53,7 +54,6 @@ namespace Gibbed.RED.ResourceEdit
         }
 
         #region Bitmap stuff
-
         // TODO: make these less dumb
 
         private static Bitmap MakeBitmapFromTrueColor(
@@ -61,7 +61,8 @@ namespace Gibbed.RED.ResourceEdit
         {
             var output = new byte[width * height * 4];
             var bitmap = new Bitmap(
-                (int)width, (int)height,
+                (int)width,
+                (int)height,
                 PixelFormat.Format32bppArgb);
 
             for (uint i = 0; i < width * height * 4; i += 4)
@@ -84,7 +85,8 @@ namespace Gibbed.RED.ResourceEdit
         {
             var output = new byte[width * height * 4];
             var bitmap = new Bitmap(
-                (int)width, (int)height,
+                (int)width,
+                (int)height,
                 PixelFormat.Format32bppArgb);
 
             uint o = 0;
@@ -110,7 +112,8 @@ namespace Gibbed.RED.ResourceEdit
         {
             var output = new byte[width * height * 4];
             var bitmap = new Bitmap(
-                (int)width, (int)height,
+                (int)width,
+                (int)height,
                 PixelFormat.Format32bppArgb);
 
             uint o = 0;
@@ -168,8 +171,9 @@ namespace Gibbed.RED.ResourceEdit
                     {
                         data = Squish.Native.DecompressImage(
                             mip.Data,
-                            (int)mip.Width, (int)mip.Height,
-                            (int)Squish.Native.SquishFlags.DXT1);
+                            (int)mip.Width,
+                            (int)mip.Height,
+                            Squish.Native.Flags.DXT1);
                         break;
                     }
 
@@ -177,8 +181,9 @@ namespace Gibbed.RED.ResourceEdit
                     {
                         data = Squish.Native.DecompressImage(
                             mip.Data,
-                            (int)mip.Width, (int)mip.Height,
-                            (int)Squish.Native.SquishFlags.DXT5);
+                            (int)mip.Width,
+                            (int)mip.Height,
+                            Squish.Native.Flags.DXT5);
                         break;
                     }
 
@@ -200,15 +205,18 @@ namespace Gibbed.RED.ResourceEdit
                         case FileFormats.Game.ETextureRawFormat.TRF_TrueColor:
                         {
                             bitmap = MakeBitmapFromTrueColor(
-                                mip.Width, mip.Height,
-                                data, this.showAlphaButton.Checked);
+                                mip.Width,
+                                mip.Height,
+                                data,
+                                this.showAlphaButton.Checked);
                             break;
                         }
 
                         case FileFormats.Game.ETextureRawFormat.TRF_Grayscale:
                         {
                             bitmap = MakeBitmapFromGrayscale(
-                                mip.Width, mip.Height,
+                                mip.Width,
+                                mip.Height,
                                 data);
                             break;
                         }
@@ -216,8 +224,10 @@ namespace Gibbed.RED.ResourceEdit
                         case FileFormats.Game.ETextureRawFormat.TRF_AlphaGrayscale:
                         {
                             bitmap = MakeBitmapFromAlphaGrayscale(
-                                mip.Width, mip.Height,
-                                data, this.showAlphaButton.Checked);
+                                mip.Width,
+                                mip.Height,
+                                data,
+                                this.showAlphaButton.Checked);
                             break;
                         }
 
@@ -271,6 +281,7 @@ namespace Gibbed.RED.ResourceEdit
 
         private void OnSaveToFile(object sender, EventArgs e)
         {
+            this.previewPictureBox.Image.Save(@"T:\test.png", ImageFormat.Png);
         }
     }
 }

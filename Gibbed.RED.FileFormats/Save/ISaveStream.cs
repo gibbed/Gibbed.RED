@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -41,10 +41,13 @@ namespace Gibbed.RED.FileFormats.Save
         void SerializeValue(string name, ref string value);
         void SerializeValue(string name, ref Guid value);
         void SerializeValue(string name, ref byte[] value);
+
         void SerializeBlock<TType>(string name, ref TType value)
             where TType : ISaveBlock, new();
+
         void SerializeBlocks<TType>(string name, string type, ref List<TType> value)
             where TType : ISaveBlock, new();
+
         void SerializeObject<TType>(string name, string type, ref TType value)
             where TType : IFileObject, new();
     }

@@ -20,13 +20,13 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Resource
+using System;
+
+namespace Gibbed.RED.FileFormats.Game
 {
-    internal struct Info
+    public struct IdTag
     {
-        public string[] Names;
-        public LinkInfo[] Links;
-        public ObjectInfo[] Objects;
-        public string[] Dependencies;
+        public byte Unknown0;
+        public Guid Unknown1;
     }
 }

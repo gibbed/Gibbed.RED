@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -25,16 +25,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Gibbed.Helpers;
+using Gibbed.IO;
 
 namespace Gibbed.RED.FileFormats
 {
     public class StringsFile
     {
         public uint Version;
-        public uint EncryptionKey = 0;
+        public uint EncryptionKey;
+
         public Dictionary<string, uint> Keys
             = new Dictionary<string, uint>();
+
         public Dictionary<uint, string> Texts
             = new Dictionary<uint, string>();
 
@@ -89,10 +91,10 @@ namespace Gibbed.RED.FileFormats
                     buffer = Encoding.Unicode.GetBytes(kv.Value);
                 }
                 */
-                
+
                 var buffer = Encoding.Unicode.GetBytes(kv.Value);
 
-                ushort stringKey = (ushort)(magic >> 8);
+                var stringKey = (ushort)(magic >> 8);
 
                 for (int j = 0; j < buffer.Length; j += 2)
                 {
@@ -180,7 +182,7 @@ namespace Gibbed.RED.FileFormats
 
                 var buffer = input.ReadEncodedStringBuffer();
 
-                ushort stringKey = (ushort)(magic >> 8);
+                var stringKey = (ushort)(magic >> 8);
 
                 uint hash = 0;
 
@@ -241,18 +243,30 @@ namespace Gibbed.RED.FileFormats
 
             switch (fileKey)
             {
-                case 0x18632176: return 0x16875467;
-                case 0x18796651: return 0x42387566; // ES
-                case 0x23863176: return 0x75921975; // FR
-                case 0x24987354: return 0x21793217;
-                case 0x42378932: return 0x67823218;
-                case 0x43975139: return 0x79321793; // EN
-                case 0x45931894: return 0x12375973; // IT
-                case 0x54834893: return 0x59825646;
-                case 0x63481486: return 0x42386347; // RU (1.1)
-                case 0x75886138: return 0x42791159; // DE
-                case 0x77932179: return 0x54932186; // RU (1.0)
-                case 0x83496237: return 0x73946816; // PL
+                case 0x18632176:
+                    return 0x16875467;
+                case 0x18796651:
+                    return 0x42387566; // ES
+                case 0x23863176:
+                    return 0x75921975; // FR
+                case 0x24987354:
+                    return 0x21793217;
+                case 0x42378932:
+                    return 0x67823218;
+                case 0x43975139:
+                    return 0x79321793; // EN
+                case 0x45931894:
+                    return 0x12375973; // IT
+                case 0x54834893:
+                    return 0x59825646;
+                case 0x63481486:
+                    return 0x42386347; // RU (1.1)
+                case 0x75886138:
+                    return 0x42791159; // DE
+                case 0x77932179:
+                    return 0x54932186; // RU (1.0)
+                case 0x83496237:
+                    return 0x73946816; // PL
             }
 
             return 0;

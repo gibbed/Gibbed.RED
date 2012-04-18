@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Gibbed.Helpers;
+using Gibbed.IO;
 using Gibbed.RED.FileFormats;
 using NDesk.Options;
 
@@ -43,28 +43,28 @@ namespace Gibbed.RED.Unpack
             string cdkey = null;
             string extensionFilter = null;
 
-            OptionSet options = new OptionSet()
+            var options = new OptionSet()
             {
                 {
                     "o|overwrite",
                     "overwrite existing files",
                     v => overwriteFiles = v != null
-                },
+                    },
                 {
                     "cdkey=",
                     "cdkey for use with DLC archives\n(in format #####-#####-#####-#####)",
                     v => cdkey = v
-                },
+                    },
                 {
                     "e|extension=",
                     "only extract files of this extension",
                     v => extensionFilter = v
-                },
+                    },
                 {
                     "h|help",
-                    "show this message and exit", 
+                    "show this message and exit",
                     v => showHelp = v != null
-                },
+                    },
             };
 
             List<string> extras;
@@ -93,13 +93,15 @@ namespace Gibbed.RED.Unpack
             string inputPath = extras[0];
             string outputPath = extras.Count > 1 ? extras[1] : Path.ChangeExtension(inputPath, null);
 
+            outputPath = Path.GetFullPath(outputPath);
+
             var uncompressed = new byte[0x10000];
             bool filtering = string.IsNullOrEmpty(extensionFilter) == false;
 
             using (var input = File.Open(inputPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 var pkg = new PackageFile();
-                pkg.DeserializeWithCDKey(input, cdkey);
+                pkg.DeserializeWithCdKey(input, cdkey);
 
                 long current = 0;
                 long total = pkg.Entries.Count;
@@ -122,13 +124,21 @@ namespace Gibbed.RED.Unpack
                     }
 
                     Console.WriteLine("[{0}/{1}] {2}",
-                        current, total, entry.Name);
+                                      current,
+                                      total,
+                                      entry.Name);
 
-                    Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
+                    var entryDirectory = Path.GetDirectoryName(entryPath);
+                    if (entryDirectory == null)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    Directory.CreateDirectory(entryDirectory);
 
                     input.Seek(entry.Offset, SeekOrigin.Begin);
 
-                    int blocks = (int)((entry.UncompressedSize + 0xFFFF) >> 16); // .Align(0x10000) / 0x10000;
+                    var blocks = (int)((entry.UncompressedSize + 0xFFFF) >> 16); // .Align(0x10000) / 0x10000;
 
                     var offsets = new long[blocks + 1];
                     for (int i = 0; i < offsets.Length; i++)
@@ -147,7 +157,7 @@ namespace Gibbed.RED.Unpack
                             input.Seek(offsets[i], SeekOrigin.Begin);
                             input.Read(compressed, 0, compressed.Length);
 
-                            int read = LZF.Decompress(compressed, uncompressed);
+                            int read = Lzf.Decompress(compressed, uncompressed);
 
                             if (i + 1 < blocks && read != uncompressed.Length)
                             {

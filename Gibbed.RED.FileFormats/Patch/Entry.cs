@@ -20,13 +20,20 @@
  *    distribution.
  */
 
-namespace Gibbed.RED.FileFormats.Resource
+namespace Gibbed.RED.FileFormats.Patch
 {
-    internal struct Info
+    public class Entry
     {
-        public string[] Names;
-        public LinkInfo[] Links;
-        public ObjectInfo[] Objects;
-        public string[] Dependencies;
+        public string Name;
+        public long Offset;
+        public uint PatchDataSize;
+        public uint OriginalSize;
+        public ulong UnpatchedHash;
+        public ulong PatchedHash;
+
+        public override string ToString()
+        {
+            return this.Name ?? base.ToString();
+        }
     }
 }

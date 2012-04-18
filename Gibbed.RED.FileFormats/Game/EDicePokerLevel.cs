@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -24,9 +24,11 @@ namespace Gibbed.RED.FileFormats.Game
 {
     public enum EDicePokerLevel
     {
+        // ReSharper disable InconsistentNaming
         Poker_Master = 0,
         Poker_Hard = 1,
         Poker_Normal = 2,
         Poker_Easy = 3,
+        // ReSharper restore InconsistentNaming
     }
 }

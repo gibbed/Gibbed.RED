@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -19,8 +19,6 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
-using System.IO;
 
 namespace Gibbed.RED.FileFormats
 {

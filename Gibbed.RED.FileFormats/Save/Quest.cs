@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -26,13 +26,13 @@ namespace Gibbed.RED.FileFormats.Save
 {
     public class Quest : ISaveBlock
     {
-        private string _FileName;
-        public QuestData _Data;
+        public string FileName;
+        public QuestData Data;
 
         public void Serialize(ISaveStream stream)
         {
-            stream.SerializeValue("fileName", ref this._FileName);
-            stream.SerializeBlock("questThread", ref this._Data);
+            stream.SerializeValue("fileName", ref this.FileName);
+            stream.SerializeBlock("questThread", ref this.Data);
             throw new NotImplementedException();
         }
     }

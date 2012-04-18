@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -27,7 +27,7 @@ namespace Gibbed.RED.FileFormats.Save
 {
     public class QuestData : ISaveBlock
     {
-        public List<QuestBlock> _Blocks;
+        public List<QuestBlock> Blocks;
 
         public void Serialize(ISaveStream stream)
         {
@@ -35,17 +35,19 @@ namespace Gibbed.RED.FileFormats.Save
             {
                 uint numBlocks = 0;
                 stream.SerializeValue("numBlocks", ref numBlocks);
-                this._Blocks = new List<QuestBlock>();
+                this.Blocks = new List<QuestBlock>();
                 for (uint i = 0; i < numBlocks; i++)
                 {
                     QuestBlock block = null;
                     stream.SerializeBlock("questBlock", ref block);
-                    this._Blocks.Add(block);
+                    this.Blocks.Add(block);
                 }
 
                 throw new NotImplementedException();
             }
+                // ReSharper disable RedundantIfElseBlock
             else
+                // ReSharper restore RedundantIfElseBlock
             {
                 throw new NotImplementedException();
             }

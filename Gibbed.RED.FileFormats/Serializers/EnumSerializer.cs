@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -26,7 +26,9 @@ namespace Gibbed.RED.FileFormats.Serializers
 {
     public class EnumSerializer<TType> : IPropertySerializer
     {
-        private static readonly Type EnumType = typeof(TType);
+        // ReSharper disable StaticFieldInGenericType
+        private static readonly Type _EnumType = typeof(TType);
+        // ReSharper restore StaticFieldInGenericType
 
         public void Serialize(IFileStream stream, object value)
         {
@@ -38,13 +40,12 @@ namespace Gibbed.RED.FileFormats.Serializers
             string value = null;
             stream.SerializeName(ref value);
 
-            if (Enum.IsDefined(EnumType, value) == false)
+            if (Enum.IsDefined(_EnumType, value) == false)
             {
-                throw new FormatException(string.Format("'{0}' does not contain a definition for '{1}'", EnumType, value));
+                throw new FormatException(string.Format("'{0}' does not contain a definition for '{1}'", _EnumType, value));
             }
 
-            return (TType)Enum
-                .Parse(EnumType, value);
+            return (TType)Enum.Parse(_EnumType, value);
         }
     }
 }

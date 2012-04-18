@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -28,17 +28,19 @@ namespace Gibbed.RED.FileFormats.Script
 {
     internal static class OpcodeHandlerCache
     {
-        private static Dictionary<Opcode, Type> Lookup = null;
+        private static Dictionary<Opcode, Type> _Lookup;
 
         private static void BuildLookup()
         {
-            Lookup = new Dictionary<Opcode, Type>();
+            _Lookup = new Dictionary<Opcode, Type>();
 
             foreach (Type type in Assembly.GetAssembly(typeof(OpcodeHandlerCache)).GetTypes())
             {
                 if (typeof(IInstruction).IsAssignableFrom(type) == true)
                 {
-                    foreach (OpcodeHandlerAttribute handler in type.GetCustomAttributes(typeof(OpcodeHandlerAttribute), false))
+                    foreach (
+                        OpcodeHandlerAttribute handler in
+                            type.GetCustomAttributes(typeof(OpcodeHandlerAttribute), false))
                     {
                         AddHandler(handler.Opcode, type);
                     }
@@ -48,27 +50,28 @@ namespace Gibbed.RED.FileFormats.Script
 
         private static void AddHandler(Opcode opcode, Type type)
         {
-            if (Lookup.ContainsKey(opcode) == true)
+            if (_Lookup.ContainsKey(opcode) == true)
             {
                 throw new InvalidOperationException(string.Format("handler collision for {0}", opcode));
             }
 
-            Lookup.Add(opcode, type);
+            _Lookup.Add(opcode, type);
         }
 
         public static IInstruction CreateInstruction(Opcode opcode)
         {
-            if (Lookup == null)
+            if (_Lookup == null)
             {
                 BuildLookup();
             }
 
-            if (Lookup.ContainsKey(opcode) == false)
+            // ReSharper disable PossibleNullReferenceException
+            if (_Lookup.ContainsKey(opcode) == false) // ReSharper restore PossibleNullReferenceException
             {
                 throw new ArgumentException(string.Format("no handler for {0}", opcode));
             }
 
-            return (IInstruction)Activator.CreateInstance(Lookup[opcode]);
+            return (IInstruction)Activator.CreateInstance(_Lookup[opcode]);
         }
     }
 }

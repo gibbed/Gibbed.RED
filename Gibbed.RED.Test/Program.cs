@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -20,8 +20,13 @@
  *    distribution.
  */
 
+// ReSharper disable RedundantUsingDirective
+
 using System.IO;
+using System.Linq;
 using Gibbed.RED.FileFormats;
+
+// ReSharper restore RedundantUsingDirective
 
 namespace Gibbed.RED.Test
 {
@@ -29,11 +34,6 @@ namespace Gibbed.RED.Test
     {
         public static void Main(string[] args)
         {
-            using (var input = File.OpenRead(@"T:\Games\Steam\steamapps\common\the witcher 2\CookedPC\compiledscripts.w2scripts"))
-            {
-                var test = new CompiledScriptsFile();
-                test.Deserialize(input);
-            }
         }
     }
 }

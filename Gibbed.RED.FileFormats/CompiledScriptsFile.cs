@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -22,7 +22,7 @@
 
 using System;
 using System.IO;
-using Gibbed.Helpers;
+using Gibbed.IO;
 
 namespace Gibbed.RED.FileFormats
 {
@@ -35,7 +35,7 @@ namespace Gibbed.RED.FileFormats
         public void Deserialize(Stream input)
         {
             input.Seek(-4, SeekOrigin.End);
-            
+
             // read strings
             var stringTableOffset = input.ReadValueU32();
             input.Seek(stringTableOffset, SeekOrigin.Begin);
@@ -43,14 +43,16 @@ namespace Gibbed.RED.FileFormats
             var strings = new Script.RawString[stringCount];
             for (int i = 0; i < strings.Length; i++)
             {
+                // ReSharper disable UseObjectOrCollectionInitializer
                 var stringEntry = new Script.RawString();
+                // ReSharper restore UseObjectOrCollectionInitializer
                 stringEntry.Value = input.ReadEncodedString();
                 stringEntry.IsName = input.ReadValueB8();
                 strings[i] = stringEntry;
             }
 
             input.Seek(0, SeekOrigin.Begin);
-            
+
             // now the script data
             this.Unknown0 = input.ReadEncodedString();
             this.TimeStamp = DateTime.FromFileTime(input.ReadValueS64());
@@ -64,14 +66,16 @@ namespace Gibbed.RED.FileFormats
 
             for (uint i = 0; i < typeDefCount; i++)
             {
+                // ReSharper disable UseObjectOrCollectionInitializer
                 var rawTypeDef = new Script.RawTypeDefinition();
+                // ReSharper restore UseObjectOrCollectionInitializer
                 rawTypeDef.Name = strings[input.ReadValueEncodedS32()].Value;
                 rawTypeDef.Type = (Script.NativeType)input.ReadValueEncodedS32();
                 rawTypeDef.NativePropertyCount = input.ReadValueEncodedS32();
                 rawTypeDef.ScriptedPropertyCount = input.ReadValueEncodedS32();
                 rawTypeDef.Flags = (Script.TypeDefinitionFlags)input.ReadValueEncodedS32();
 
-                Script.TypeDefinition typeDef = null;
+                Script.TypeDefinition typeDef;
 
                 switch (rawTypeDef.Type)
                 {
@@ -213,10 +217,13 @@ namespace Gibbed.RED.FileFormats
 
                 rawTypeDefs[i] = rawTypeDef;
 
-                if (typeDef == null)
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse
+                if (typeDef == null) // ReSharper restore ConditionIsAlwaysTrueOrFalse
+                    // ReSharper disable HeuristicUnreachableCode
                 {
                     throw new FormatException();
                 }
+                // ReSharper restore HeuristicUnreachableCode
 
                 typeDefs[i] = typeDef;
             }
@@ -226,7 +233,9 @@ namespace Gibbed.RED.FileFormats
 
             for (uint i = 0; i < funcDefCount; i++)
             {
+                // ReSharper disable UseObjectOrCollectionInitializer
                 var rawFuncDef = new Script.RawFunctionDefinition();
+                // ReSharper restore UseObjectOrCollectionInitializer
                 rawFuncDef.Name = strings[input.ReadValueEncodedS32()].Value;
                 rawFuncDef.DefinedOnId = input.ReadValueEncodedS32();
                 rawFuncDef.Flags = input.ReadValueEncodedS32();
@@ -250,8 +259,9 @@ namespace Gibbed.RED.FileFormats
                 {
                     continue;
                 }
-                else if ((rawTypeDef.Flags &
-                    Script.TypeDefinitionFlags.Scripted) == 0)
+
+                if ((rawTypeDef.Flags &
+                     Script.TypeDefinitionFlags.Scripted) == 0)
                 {
                     continue;
                 }
@@ -270,7 +280,7 @@ namespace Gibbed.RED.FileFormats
 
                 var typeDef = (Script.EnumDefinition)typeDefs[i];
                 typeDef.Unknown0 = input.ReadValueEncodedS32();
-                
+
                 var constantCount = input.ReadValueEncodedS32();
                 typeDef.Constants.Clear();
                 for (int j = 0; j < constantCount; j++)
@@ -290,8 +300,9 @@ namespace Gibbed.RED.FileFormats
                 {
                     continue;
                 }
-                else if ((rawTypeDef.Flags &
-                    Script.TypeDefinitionFlags.Scripted) == 0)
+
+                if ((rawTypeDef.Flags &
+                     Script.TypeDefinitionFlags.Scripted) == 0)
                 {
                     continue;
                 }
@@ -366,8 +377,9 @@ namespace Gibbed.RED.FileFormats
                 {
                     continue;
                 }
-                else if ((rawTypeDef.Flags &
-                    Script.TypeDefinitionFlags.Scripted) == 0)
+
+                if ((rawTypeDef.Flags &
+                     Script.TypeDefinitionFlags.Scripted) == 0)
                 {
                     continue;
                 }
@@ -394,11 +406,11 @@ namespace Gibbed.RED.FileFormats
                         input.Read(typeData, 0, typeData.Length);
 
                         typeDef.Defaults.Add(propName,
-                            new Script.PropertyDefault()
-                            {
-                                TypeName = typeName,
-                                Data = typeData,
-                            });
+                                             new Script.PropertyDefault()
+                                             {
+                                                 TypeName = typeName,
+                                                 Data = typeData,
+                                             });
                     }
                     else
                     {
@@ -407,6 +419,7 @@ namespace Gibbed.RED.FileFormats
                 }
             }
 
+            // ReSharper disable UnusedVariable
             // parse functions (awww yeah)
             for (int i = 0; i < rawFuncDefs.Length; i++)
             {
@@ -451,58 +464,70 @@ namespace Gibbed.RED.FileFormats
                 {
                     var unencodedByteCodeLength = input.ReadValueEncodedS32();
                     int read;
-                    for (read = 0; read < unencodedByteCodeLength; )
+                    for (read = 0; read < unencodedByteCodeLength;)
                     {
                         var op = input.ReadValueU8();
                         var opcode = (Script.Opcode)op;
                         read++;
 
+                        // ReSharper disable InconsistentNaming
                         switch (opcode)
                         {
                             case Script.Opcode.U12:
                             {
-                                var op_0 = input.ReadValueEncodedS32(); read += 4;
-                                var op_1 = input.ReadValueU8(); read++;
+                                var op_0 = input.ReadValueEncodedS32();
+                                read += 4;
+                                var op_1 = input.ReadValueU8();
+                                read++;
                                 break;
                             }
 
                             case Script.Opcode.U05:
                             {
-                                var op_0 = input.ReadValueS16(); read += 2;
+                                var op_0 = input.ReadValueS16();
+                                read += 2;
                                 break;
                             }
 
                             case Script.Opcode.U04:
                             {
-                                var op_0 = input.ReadValueEncodedS32(); read += 4;
+                                var op_0 = input.ReadValueEncodedS32();
+                                read += 4;
                                 break;
                             }
 
                             case Script.Opcode.U06:
                             {
-                                var op_0 = input.ReadValueF32(); read += 4;
+                                var op_0 = input.ReadValueF32();
+                                read += 4;
                                 break;
                             }
 
                             case Script.Opcode.U07:
                             {
-                                var op_0 = input.ReadValueEncodedS32(); read += 16;
+                                var op_0 = input.ReadValueEncodedS32();
+                                read += 16;
                                 break;
                             }
 
                             case Script.Opcode.U28:
                             {
-                                var op_0 = input.ReadValueU16(); read += 2;
-                                var op_1 = input.ReadValueU16(); read += 2;
-                                var op_2 = input.ReadValueEncodedS32(); read += 4;
+                                var op_0 = input.ReadValueU16();
+                                read += 2;
+                                var op_1 = input.ReadValueU16();
+                                read += 2;
+                                var op_2 = input.ReadValueEncodedS32();
+                                read += 4;
                                 break;
                             }
 
                             case Script.Opcode.U33:
                             case Script.Opcode.U20:
                             {
-                                var op_0 = input.ReadValueU16(); read += 2;
-                                var op_1 = input.ReadValueU16(); read += 2;
+                                var op_0 = input.ReadValueU16();
+                                read += 2;
+                                var op_1 = input.ReadValueU16();
+                                read += 2;
                                 break;
                             }
 
@@ -511,7 +536,8 @@ namespace Gibbed.RED.FileFormats
                             case Script.Opcode.U22:
                             case Script.Opcode.U24:
                             {
-                                var op_0 = input.ReadValueU16(); read += 2;
+                                var op_0 = input.ReadValueU16();
+                                read += 2;
                                 break;
                             }
 
@@ -528,15 +554,19 @@ namespace Gibbed.RED.FileFormats
 
                             case Script.Opcode.U19:
                             {
-                                var op_0 = input.ReadValueEncodedS32(); read += 4;
-                                var op_1 = input.ReadValueU16(); read += 2;
+                                var op_0 = input.ReadValueEncodedS32();
+                                read += 4;
+                                var op_1 = input.ReadValueU16();
+                                read += 2;
                                 break;
                             }
 
                             case Script.Opcode.U26:
                             {
-                                var op_0 = input.ReadValueU8(); read++;
-                                var op_1 = input.ReadValueEncodedS32(); read += 4;
+                                var op_0 = input.ReadValueU8();
+                                read++;
+                                var op_1 = input.ReadValueEncodedS32();
+                                read += 4;
                                 break;
                             }
 
@@ -563,14 +593,17 @@ namespace Gibbed.RED.FileFormats
                             case Script.Opcode.U55:
                             case Script.Opcode.U41:
                             {
-                                var op_0 = input.ReadValueEncodedS32(); read += 4;
+                                var op_0 = input.ReadValueEncodedS32();
+                                read += 4;
                                 break;
                             }
 
                             case Script.Opcode.U27:
                             {
-                                var op_0 = input.ReadValueU16(); read += 2;
-                                var op_1 = input.ReadValueU16(); read += 2;
+                                var op_0 = input.ReadValueU16();
+                                read += 2;
+                                var op_1 = input.ReadValueU16();
+                                read += 2;
                                 var op_2 = input.ReadValueEncodedS32();
                                 if (op_2 == -1)
                                 {
@@ -583,8 +616,10 @@ namespace Gibbed.RED.FileFormats
                             case Script.Opcode.U29:
                             case Script.Opcode.U40:
                             {
-                                var op_0 = input.ReadValueU16(); read += 2;
-                                var op_1 = input.ReadValueEncodedS32(); read += 4;
+                                var op_0 = input.ReadValueU16();
+                                read += 2;
+                                var op_1 = input.ReadValueEncodedS32();
+                                read += 4;
                                 break;
                             }
 
@@ -630,6 +665,7 @@ namespace Gibbed.RED.FileFormats
                                 throw new NotImplementedException("unhandled " + opcode.ToString());
                             }
                         }
+                        // ReSharper restore InconsistentNaming
                     }
 
                     if (read != unencodedByteCodeLength)
@@ -638,6 +674,7 @@ namespace Gibbed.RED.FileFormats
                     }
                 }
             }
+            // ReSharper restore UnusedVariable
         }
     }
 }

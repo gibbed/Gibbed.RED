@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -138,10 +138,11 @@ namespace Gibbed.RED.ResourceEdit
                 MessageBox.Show(
                     "Unsupported object type.",
                     "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
             else if (obj.Data is FileFormats.Game.CObject ||
-                obj.Data is FileFormats.Game.TTypedClass)
+                     obj.Data is FileFormats.Game.TTypedClass)
             {
                 var viewer = new ObjectViewer()
                 {
@@ -154,9 +155,10 @@ namespace Gibbed.RED.ResourceEdit
             {
                 MessageBox.Show(
                     string.Format("Unimplemented object type ({0}).",
-                        obj.Data.GetType().Name),
+                                  obj.Data.GetType().Name),
                     "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 

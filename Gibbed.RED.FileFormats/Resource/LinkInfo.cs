@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -31,9 +31,9 @@ namespace Gibbed.RED.FileFormats.Resource
         public override string ToString()
         {
             return string.Format("{1}, {2} @ {0}",
-                this.FileName,
-                this.Unknown1,
-                this.Unknown2);
+                                 this.FileName,
+                                 this.Unknown1,
+                                 this.Unknown2);
         }
     }
 }

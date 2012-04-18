@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2011 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Gibbed.Helpers;
+using Gibbed.IO;
 
 namespace Gibbed.RED.FileFormats
 {
@@ -33,6 +33,7 @@ namespace Gibbed.RED.FileFormats
 
         public List<Resource.ObjectInfo> Objects
             = new List<Resource.ObjectInfo>();
+
         public List<string> Dependencies
             = new List<string>();
 
@@ -49,7 +50,9 @@ namespace Gibbed.RED.FileFormats
                 throw new FormatException();
             }
 
+            // ReSharper disable UnusedVariable
             var flags = input.ReadValueU32();
+            // ReSharper restore UnusedVariable
 
             var nameDataOffset = input.ReadValueU32();
             var nameCount = input.ReadValueU32();
@@ -66,9 +69,11 @@ namespace Gibbed.RED.FileFormats
                 dependencyCount = input.ReadValueU32();
             }
 
-            var info = new Resource.Info();
-            
-            info.Names = new string[nameCount];
+            var info = new Resource.Info
+            {
+                Names = new string[nameCount],
+            };
+
             if (nameCount > 0)
             {
                 input.Seek(nameDataOffset, SeekOrigin.Begin);
@@ -85,7 +90,9 @@ namespace Gibbed.RED.FileFormats
 
                 for (uint i = 0; i < linkCount; i++)
                 {
+                    // ReSharper disable UseObjectOrCollectionInitializer
                     var link = new Resource.LinkInfo();
+                    // ReSharper restore UseObjectOrCollectionInitializer
                     link.FileName = input.ReadEncodedStringW();
                     link.Unknown1 = input.ReadValueU16();
                     link.Unknown2 = input.ReadValueU16();
@@ -121,35 +128,29 @@ namespace Gibbed.RED.FileFormats
                         throw new FormatException();
                     }
 
-                    var obj = new Resource.ObjectInfo();
-                    obj.TypeName = info.Names[typeNameIndex - 1];
+                    var obj = new Resource.ObjectInfo
+                    {
+                        TypeName = info.Names[typeNameIndex - 1],
+                    };
 
                     var parentIndex = input.ReadValueS32();
 
+                    // ReSharper disable UseObjectOrCollectionInitializer
                     var location = new ObjectLocation();
+                    // ReSharper restore UseObjectOrCollectionInitializer
                     location.Size = input.ReadValueU32();
                     location.Offset = input.ReadValueU32();
 
                     obj.Flags = input.ReadValueU32();
-                    obj.Unknown5 = input.ReadValueU32();
+                    obj.TemplateIndex = input.ReadValueS32();
                     obj.Link = this.Version < 102 ? null : input.ReadEncodedString();
 
-                    if (TypeCache.Supports(obj.TypeName) == false)
-                    {
-                        obj.Data = new Resource.Dummy();
-                    }
-                    else
-                    {
-                        obj.Data = TypeCache.Instantiate(obj.TypeName);
-                    }
+                    obj.Data = TypeCache.Supports(obj.TypeName) == false
+                                   ? new Resource.Dummy()
+                                   : TypeCache.Instantiate(obj.TypeName);
 
                     info.Objects[i] = obj;
                     offsets.Add(obj, location);
-
-                    if (obj.Unknown5 != 0)
-                    {
-                        throw new FormatException();
-                    }
 
                     if (parentIndex > 0)
                     {
@@ -173,7 +174,7 @@ namespace Gibbed.RED.FileFormats
                     var location = offsets[obj];
 
                     input.Seek(location.Offset, SeekOrigin.Begin);
-                    
+
                     var data = new byte[location.Size];
                     input.Read(data, 0, data.Length);
 
@@ -200,11 +201,11 @@ namespace Gibbed.RED.FileFormats
         // Lame ass way to do this but, it'll work for now.
         private static class TypeCache
         {
-            private static Dictionary<string, Type> Lookup = null;
+            private static Dictionary<string, Type> _Lookup;
 
             private static void BuildLookup()
             {
-                Lookup = new Dictionary<string, Type>();
+                _Lookup = new Dictionary<string, Type>();
 
                 foreach (var type in System.Reflection.Assembly
                     .GetAssembly(typeof(TypeCache)).GetTypes())
@@ -217,38 +218,42 @@ namespace Gibbed.RED.FileFormats
                     foreach (ResourceHandlerAttribute attribute in
                         type.GetCustomAttributes(typeof(ResourceHandlerAttribute), false))
                     {
-                        if (Lookup.ContainsKey(attribute.Name) == true)
+                        if (_Lookup.ContainsKey(attribute.Name) == true)
                         {
                             throw new InvalidOperationException();
                         }
 
-                        Lookup.Add(attribute.Name, type);
+                        _Lookup.Add(attribute.Name, type);
                     }
                 }
             }
 
             public static bool Supports(string className)
             {
-                if (Lookup == null)
+                if (_Lookup == null)
                 {
                     BuildLookup();
                 }
 
-                return Lookup.ContainsKey(className);
+                // ReSharper disable PossibleNullReferenceException
+                return _Lookup.ContainsKey(className);
+                // ReSharper restore PossibleNullReferenceException
             }
 
             public static IFileObject Instantiate(string className)
             {
-                if (Lookup == null)
+                if (_Lookup == null)
                 {
                     BuildLookup();
                 }
-                else if (Lookup.ContainsKey(className) == false)
+                else if (_Lookup.ContainsKey(className) == false)
                 {
                     return null;
                 }
 
-                return (IFileObject)Activator.CreateInstance(Lookup[className]);
+                // ReSharper disable PossibleNullReferenceException
+                return (IFileObject)Activator.CreateInstance(_Lookup[className]);
+                // ReSharper restore PossibleNullReferenceException
             }
         }
         #endregion
