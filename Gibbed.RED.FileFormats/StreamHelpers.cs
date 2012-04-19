@@ -163,8 +163,6 @@ namespace Gibbed.RED.FileFormats
 
             if (length < 0)
             {
-                throw new NotImplementedException();
-
                 length = -length;
                 if (length >= 0x10000)
                 {
@@ -172,18 +170,17 @@ namespace Gibbed.RED.FileFormats
                 }
 
                 // ASCII
-                var buffer = new byte[length * 2];
                 var ascii = new byte[length];
                 if (stream.Read(ascii, 0, ascii.Length) != ascii.Length)
                 {
                     throw new InvalidOperationException();
                 }
 
-                for (int i = 0; i < length; i++)
+                var buffer = new byte[length * 2];
+                for (int i = 0, j = 0; i < length; i++, j += 2)
                 {
-                    buffer[i * 2] = ascii[i];
+                    buffer[j] = ascii[i];
                 }
-
                 return buffer;
             }
             else
